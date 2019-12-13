@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>F4A</title>
+    <!-- TODO: set a favicon for the site probably -->
+    <!--link rel="icon" type="image/FILE_EXT" href=""/-->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='f4a.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<!-- NOTE: If needed, change function to a master JS function that calls showTable() and whatever else is needed -->
+<body onload="startUp()">
+    <br/>
+    <div class='container-fluid'>
+        <div class='row'>
+            <div class='col-md-10'>
+                <h1 class="pull-left"><u>Fairness For All (F4A)</u></h1>
+                <div style="padding:0;" class="col-md-10">
+                    Machine learning can be complicated - and when you begin discussing
+                    why and how machine learning can be unfair, it becomes even more
+                    difficult to understand. This is why we made Fairness For All (F4A).
+                    Not only is this website's goal to make the fairness in machine learning
+                    problem accessible to all, but also to facilitate research on
+                    fair machine learning so we can truly have Fairness For All.
+                </div>
+            </div>
+            <!--div class='col-md-6 clearfix'></div-->
+            <div class='col-md-2'>
+                <img style="float:right;" src="{{ url_for('static', filename='uwyo_ask_lars.png') }}" class="topright rounded-circle" >
+            </div>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div class='container-fluid'>
+        <div class='row'>
+            <div class='col-md-3'>
+                Select a data set to begin:
+
+                <br/>
+                <form action='/dataSelect' method='POST'>
+                    <!--select name='dataset' onchange=";" onclick="showTable()" id='dataset'-->
+                    <select name='dataset' onclick="showTable()" id="dataset">
+                        <option disabled selected value>-- Select a value --</option>
+                        <!--option>Credit Default</option-->
+                        {% for dataset in dataset_names %}
+                            <option value="{{ dataset[0] }}">{{ dataset[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            <div id="dataVisTable" class='col-md-9'>
+                <form action="/featSelect">
+                    <table class='dataTable' id='dataVisCheckpoint'>
+                        <tr>
+                            <!--td class='col-md-1'><span style="font-weight: bold; text-decoration: underline;">Include</span></td-->
+                            <td class='col-md-3'>&nbsp; <span style="font-weight: bold; text-decoration: underline;">Feature Name</span> &nbsp;</td>
+                            <td class='col-md-9'> &nbsp; <span style="font-weight: bold; text-decoration: underline;">Distributions</span>  &nbsp;</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+        <div id="dataCheckboxes" class='row'>
+            <div class='col-md-3'>
+
+            </div>
+
+            <div class='col-md-9'>
+                <form id='addFeatsHere' action='/featSelect'>
+                    <p><span style="font-weight: bold; text-decoration: underline;">Select Which Features to Use</span></p>
+                    <input type="checkbox" id="checkAll" />Toggle All<br>
+                </form>
+            </div>
+        </div>
+
+        <div class='row'>
+            <div class='col-md-2'>
+                Select an algorithm to use:
+                <br/>
+                <form action='/algSelect' method='POST'>
+                    <select id='algorithm' name='algorithm'>
+                        <option disabled selected value>-- Select a value --</option>
+                        {% for alg in algorithm_names %}
+                            <option value="{{ alg[0] }}">{{ alg[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class='text-center' id='submitButton'>
+        <form id='paramsInputs' name='paramsInputs' action='/runAlg' method='POST'>
+            <p>Please note: Once submitted, the process <i>may</i> take some time to
+                complete. Please do not reload and resubmit until it's finished.</p>
+
+            <div id='addParamsHere'></div>
+
+            <button id='runModel' name='runModel' type='submit' class='btn btn-success'>Submit</button>
+        </form>
+    </div>
+
+    <hr>
+    <div id='results'>
+        <p id='accuracy'></p>
+        <p id='sd'></p>
+    </div>
+    <hr>
+
+    <script src="{{ url_for('static', filename='actions.js') }}"></script>
+</body>
+
+</html>
