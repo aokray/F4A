@@ -26,6 +26,7 @@ function showSubmitButton() {
     }
 }
 
+// Master function to call all needed startup functions
 function startUp() {
     showTable();
     showSubmitButton();
@@ -41,15 +42,16 @@ $(function() {
            timeout: 0,
            data: $('#dataset').serialize(),
            success: function(data) {
+               $('#dataVisCheckpoint').find("tr:gt(0)").remove();
                formData = JSON.parse(data);
 
                var dict_keys = Object.keys(formData);
 
                for (i = 0; i < dict_keys.length; i++) {
-                   $('#dataVisCheckpoint').append('<tr>'+'\n'+'<td class="col-md-3 text-center">' + dict_keys[i] +'</td>'
+                   $('#dataVisCheckpoint').append('<tr>'+'\n'+ '<td class="text-center"><input id = "' + i + '" type="checkbox"/></td>' + '\n' +'<td class="text-center">' + dict_keys[i] +'</td>'
                                                 + '<td class="text-center">' + '<img class="graph" src="static/creditdefault/'+ formData[dict_keys[i]] + '"></td>'+'\n'+'</tr>');
 
-                   $('#addFeatsHere').append('<input type="checkbox" id="' + i + '" name="features" value="' + i + '"><label>'+dict_keys[i]+'</label><br>')
+                //    $('#addFeatsHere').append('<input type="checkbox" id="' + i + '" name="features" value="' + i + '"><label>'+dict_keys[i]+'</label><br>')
                }
            }
        });
@@ -114,6 +116,15 @@ $(document).on('submit', function(e) {
     hypers[$("input[name=hyperp]")[0].id] = $("input[name=hyperp]").val();
     console.log(JSON.stringify(hypers));
     e.preventDefault();
+    var feat_idxs = [];
+    $("#dataVisTable input[type=checkbox]:checked").each( function () {
+        var row = $(this).closest("tr")[0];
+        feat_idxs.push(parseInt(row.cells[0].firstChild.id)); 
+    });
+
+    hypers['feat_idxs'] = feat_idxs;
+
+    console.log(feat_idxs);
     // TODO: Disable the fucking button, ezpz
     $.ajax({
        type: 'POST',

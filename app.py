@@ -98,6 +98,9 @@ def runAlg():
     #
     print(algParams)
 
+    features = algParams['feat_idxs']
+    del algParams['feat_idxs']
+
     dataPath = connect('SELECT dataset_path FROM datasets WHERE dataset_name = \'' + dataset + '\';')[0][0]
     idxsPath = connect('SELECT dataset_idxspath FROM datasets WHERE dataset_name = \'' + dataset + '\';')[0][0]
     sens_idx = connect('SELECT dataset_sensidx FROM datasets WHERE dataset_name = \'' + dataset + '\';')[0][0]
@@ -110,22 +113,28 @@ def runAlg():
         for elem in ready:
             feats += elem
 
-        feats = feats[:-1] + str('}')
+        feats = feats[:-1] + str('}') if len(feats) > 2 else feats + str('}')
 
+    algParams_json = json.dumps(algParams)
+    # algParams_json = json.loads(algParams_json)
+
+    print('LMAO "DEBUGGING"')
+    print(feats)
+    checkExisting = connect('SELECT prun_results FROM prun WHERE prun_alg = \'' + algorithm + '\' AND prun_dataset = \'' + dataset + '\' AND prun_params = cast(\'' + algParams_json + '\' AS json) AND prun_feats = \'' + feats +'\';')
     checkExisting = connect('SELECT prun_results FROM prun WHERE prun_alg = \'' + algorithm + '\' AND prun_dataset = \'' + dataset + '\' AND prun_feats = \'' + feats +'\';')
 
-    if len(checkExisting):
+    if checkExisting is not None:
         results = checkExisting[0][0]
         ret_val = {}
         ret_val['acc'] = results['acc']
         ret_val['sd'] = results['sd']
-        print('I FOUND IT, NO QUERIES NECESSARY')
+        print('I FOUND IT, NO RUNNING THE MODEL NECESSARY')
     else:
         results = testLR(dataPath, idxsPath, features, float(algParams['C']), sens_idx-1, 1,2)
         ret_val = {}
         ret_val['acc'] = results[0]
         ret_val['sd'] = results[1]
-        connect_insert('INSERT INTO prun (prun_alg, prun_dataset, prun_results, prun_feats) VALUES (\'' + algorithm + '\', \'' + dataset + '\', \'' + str(json.dumps(ret_val)) + '\', \'' + feats + '\'); COMMIT;')
+        #connect_insert('INSERT INTO prun (prun_alg, prun_dataset, prun_params, prun_results, prun_feats) VALUES (\'' + algorithm + '\', \'' + dataset + '\', \'' + algParams +'\', \'' + str(json.dumps(ret_val)) + '\', \'' + feats + '\'); COMMIT;')
 
 
     return json.dumps(ret_val)

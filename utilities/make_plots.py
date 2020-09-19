@@ -8,9 +8,9 @@ rcParams.update({'figure.autolayout': True})
 
 # This expects a dataset without the label
 def make_plots(sample, datasetName, feat_descs, sens_idx, p_value, u_value, p_label, u_label):
-    # Protected indexes
+    # Protected indices
     p_idxs = np.where(sample[:,sens_idx] == p_value)[0]
-    # Unprotected indexes
+    # Unprotected indices
     u_idxs = np.where(sample[:,sens_idx] == u_value)[0]
 
     SMALL_SIZE = 14
