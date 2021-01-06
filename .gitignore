@@ -131,3 +131,7 @@ dmypy.json
 # Photos and data
 .csv
 .png
+
+
+# Libraries
+tabulator-master/

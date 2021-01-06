@@ -1,5 +1,15 @@
 var typeItemsChecked = {};
 
+var table = new Tabulator('#dataVisualizationTable', {
+    layout:"fitDataStretch",
+    height:"311px",
+    columns:[
+        {title:"Include", field:"include"},
+        {title:"Feature Name", field:"featname", sorter:"string"},
+        {title:"Distribution", field:"dist", headerSort:false}
+    ],
+});
+
 function showTable() {
     var elem = document.getElementById("dataVisTable");
     var elem2 = document.getElementById("dataCheckboxes");
