@@ -12,7 +12,9 @@ algorithm = None
 algParams = None
 features = None
 
-data_names = connect('SELECT dataset_name FROM datasets;')
+data_names = connect('SELECT dataset_name, dataset_shortname FROM datasets;')
+print('00000000000000000000000000000')
+print(data_names)
 
 alg_names = connect('SELECT algv_algname FROM algv;')
 
@@ -30,15 +32,20 @@ def admin():
 @app.route('/dataSelect', methods=['GET', 'POST', 'PUT'])
 def dataSelect():
     global dataset
-    print("Ay b0ss found this")
-    dataset = request.form['dataset']
+    ret = []
 
-    dataShortName = connect('SELECT dataset_shortname FROM datasets WHERE dataset_name = \'' + dataset +'\';')
+    dataShortName = request.args.get('dataname')  #request.form['dataset']
+    # print(dataset)
+    print("DATA SHORT NAME ")
+    print(dataShortName)
 
-    if (len(dataShortName)):
-        dataShortName = dataShortName[0][0]
+    # dataShortName = connect('SELECT dataset_shortname FROM datasets WHERE dataset_name = \'' + dataset +'\';')
 
-    feats = connect('SELECT dataset_featnames FROM datasets WHERE dataset_name = \'' + dataset +'\'')[0][0]
+    # if (len(dataShortName)):
+    #     dataShortName = dataShortName[0][0]
+
+    feats = connect('SELECT dataset_featnames FROM datasets WHERE dataset_shortname = \'' + dataShortName +'\'')[0][0]
+    print(feats)
     feats_dict = {}
     feat_names = [x.strip() for x in feats.split(',')]
 
@@ -54,11 +61,13 @@ def dataSelect():
     # make_plots(sample, dataShortName, feat_names, all[2]-1, 1, 2, sens_attr[1], sens_attr[0])
 
     for i in range(len(feat_names)):
-        feats_dict[feat_names[i]] = str(dataShortName) + str(i) + '.png'
+        feats_dict[feat_names[i]] = str(dataShortName) + "/" + str(dataShortName) + str(i)
 
-    # return ('test', 204)
-    # return '{"TEST":"static/' + dataShortName + '"}'
-    return json.dumps(feats_dict)
+    for key, val in feats_dict.items():
+        ret.append({"featname":key, "metric":np.random.rand(1)[0], "dist":val})
+
+    # return json.dumps(feats_dict)
+    return json.dumps(ret)
 
 @app.route('/featSelect', methods=['POST', 'PUT'])
 def featSelect():
@@ -123,6 +132,7 @@ def runAlg():
     checkExisting = connect('SELECT prun_results FROM prun WHERE prun_alg = \'' + algorithm + '\' AND prun_dataset = \'' + dataset + '\' AND prun_params = cast(\'' + algParams_json + '\' AS json) AND prun_feats = \'' + feats +'\';')
     checkExisting = connect('SELECT prun_results FROM prun WHERE prun_alg = \'' + algorithm + '\' AND prun_dataset = \'' + dataset + '\' AND prun_feats = \'' + feats +'\';')
 
+    # This is the bit that runs code - probably modularize this
     if checkExisting is not None:
         results = checkExisting[0][0]
         ret_val = {}

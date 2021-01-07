@@ -43,11 +43,11 @@
                 <br/>
                 <form action='/dataSelect' method='POST'>
                     <!--select name='dataset' onchange=";" onclick="showTable()" id='dataset'-->
-                    <select name='dataset' onclick="showTable()" id="dataset">
+                    <select name='dataset' id="dataset">
                         <option disabled selected value>-- Select a value --</option>
                         <!--option>Credit Default</option-->
                         {% for dataset in dataset_names %}
-                            <option value="{{ dataset[0] }}">{{ dataset[0] }}</option>
+                            <option value="{{ dataset[1] }}">{{ dataset[0] }}</option>
                         {% endfor %}
                     </select>
                 </form>

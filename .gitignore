@@ -128,10 +128,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+
 # Photos and data
 .csv
 .png
 
-
 # Libraries
 tabulator-master/
+
+# Visual Studio dirs/files
+.vscode/
