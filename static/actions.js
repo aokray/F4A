@@ -64,7 +64,6 @@ $(function () {
     $("#dataset").change(function (e) {
         showSubmitButton();
         e.preventDefault();
-        console.log(document.getElementById("dataset").value);
         $.ajax({
             type: "POST",
             url: "/dataSelect?shortdataname=" + document.getElementById("dataset").value,
@@ -73,7 +72,6 @@ $(function () {
             success: function (data) {
                 // $("#dataVisCheckpoint").find("tr:gt(0)").remove();
                 formData = JSON.parse(data);
-                console.log(formData);
 
                 var dict_keys = Object.keys(formData);
 
@@ -92,9 +90,7 @@ $(function () {
             url: "/algSelect",
             data: $("#algorithm").serialize(),
             success: function (data) {
-                console.log(data);
                 var algData = JSON.parse(data);
-                console.log(algData);
 
                 var alg_keys = Object.keys(algData);
 
@@ -102,7 +98,7 @@ $(function () {
 
                 var param_keys = Object.keys(params);
 
-                // Workaround - just ensure that the hyperparameter div is absolutely empty
+                // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
                 $("#addParamsHere")[0].innerHTML = "";
 
@@ -132,9 +128,7 @@ $(function () {
 // Probably bad design, ANY submit will go THROUGH THIS FUNCTION.
 $(document).on("submit", function (e) {
     var hypers = {};
-    console.log($("input[name=hyperp]").val());
     hypers[$("input[name=hyperp]")[0].id] = $("input[name=hyperp]").val();
-    console.log(JSON.stringify(hypers));
     e.preventDefault();
     var feat_idxs = [];
 
@@ -144,8 +138,7 @@ $(document).on("submit", function (e) {
 
     hypers["feat_idxs"] = feat_idxs;
 
-    console.log(feat_idxs);
-    // TODO: Disable the fucking button, ezpz
+    // TODO: Disable the button, """ezpz"""
     $.ajax({
         type: "POST",
         timeout: 0, // Important because server may be running model for AWHILE
@@ -154,7 +147,7 @@ $(document).on("submit", function (e) {
         contentType: "application/json",
         dataType: "json",
         success: function (data) {
-            console.log(data);
+            // console.log(data);
             // Need to parse sub JSON file?
             //algData = JSON.parse(data);
             //console.log(algData);

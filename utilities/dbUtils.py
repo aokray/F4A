@@ -45,7 +45,7 @@ def connect(qstring):
         # print(db_version)
 
         returnVal = cur.fetchall()
-        print(returnVal)
+        # print(returnVal)
 
         # close the communication with the PostgreSQL
         cur.close()
@@ -61,7 +61,6 @@ def connect(qstring):
 def connect_insert(istring):
     """ Connect to the PostgreSQL database server """
     conn = None
-    returnVal = None
     try:
         # read connection parameters
         params = config()
