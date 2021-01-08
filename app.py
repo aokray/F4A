@@ -7,7 +7,7 @@ import numpy as np
 
 app = Flask(__name__)
 
-dataset = None
+dataShortName = None
 algorithm = None
 algParams = None
 features = None
@@ -31,22 +31,15 @@ def admin():
 
 @app.route('/dataSelect', methods=['GET', 'POST', 'PUT'])
 def dataSelect():
-    global dataset
+    global dataShortName
     ret = []
 
-    dataShortName = request.args.get('dataname')  #request.form['dataset']
-    # print(dataset)
-    print("DATA SHORT NAME ")
-    print(dataShortName)
-
-    # dataShortName = connect('SELECT dataset_shortname FROM datasets WHERE dataset_name = \'' + dataset +'\';')
-
-    # if (len(dataShortName)):
-    #     dataShortName = dataShortName[0][0]
+    dataShortName = request.args.get('shortdataname')
+    print('==========================&&&&&&&&&&&&&&&&&&&&&&')
+    print(request.args)
 
     feats = connect('SELECT dataset_featnames FROM datasets WHERE dataset_shortname = \'' + dataShortName +'\'')[0][0]
     print(feats)
-    feats_dict = {}
     feat_names = [x.strip() for x in feats.split(',')]
 
     # all = connect('SELECT * FROM datasets WHERE dataset_name = \'' + dataset +'\'')[0]
@@ -61,26 +54,11 @@ def dataSelect():
     # make_plots(sample, dataShortName, feat_names, all[2]-1, 1, 2, sens_attr[1], sens_attr[0])
 
     for i in range(len(feat_names)):
-        feats_dict[feat_names[i]] = str(dataShortName) + "/" + str(dataShortName) + str(i)
+        #feats_dict[feat_names[i]] = str(dataShortName) + "/" + str(dataShortName) + str(i)
+        ret.append({"feat_id":i, "featname":feat_names[i], "metric":np.random.rand(1)[0], "dist":str(dataShortName) + "/" + str(dataShortName) + str(i)})
+    
 
-    for key, val in feats_dict.items():
-        ret.append({"featname":key, "metric":np.random.rand(1)[0], "dist":val})
-
-    # return json.dumps(feats_dict)
     return json.dumps(ret)
-
-@app.route('/featSelect', methods=['POST', 'PUT'])
-def featSelect():
-    global features
-    #features = request.form['features']
-    features = request.get_json()
-    print(features)
-
-    features = [int(key) for key, value in features.items()]
-
-    print(features)
-
-    return ''
 
 @app.route('/algSelect', methods=['GET', 'POST', 'PUT'])
 def algSelect():
@@ -100,19 +78,18 @@ def algSelect():
 
 @app.route('/runAlg', methods=['GET','POST', 'PUT'])
 def runAlg():
-    global dataset, algorithm, algParams, features
-    #dataset = request.form['dataset']
-    #algorithm = request.form['algorithm']
+    global dataShortName, algorithm, algParams, features
     algParams = request.get_json()
-    #
     print(algParams)
 
     features = algParams['feat_idxs']
     del algParams['feat_idxs']
 
-    dataPath = connect('SELECT dataset_path FROM datasets WHERE dataset_name = \'' + dataset + '\';')[0][0]
-    idxsPath = connect('SELECT dataset_idxspath FROM datasets WHERE dataset_name = \'' + dataset + '\';')[0][0]
-    sens_idx = connect('SELECT dataset_sensidx FROM datasets WHERE dataset_name = \'' + dataset + '\';')[0][0]
+    # Fix this shit, this is bush league
+    dataPath = connect('SELECT dataset_path FROM datasets WHERE dataset_shortname = \'' + dataShortName + '\';')[0][0]
+    idxsPath = connect('SELECT dataset_idxspath FROM datasets WHERE dataset_shortname = \'' + dataShortName + '\';')[0][0]
+    sens_idx = connect('SELECT dataset_sensidx FROM datasets WHERE dataset_shortname = \'' + dataShortName + '\';')[0][0]
+    dataset = connect('SELECT dataset_name FROM datasets WHERE dataset_shortname = \'' + dataShortName + '\';')[0][0]
 
     if features == None:
         feats = '{}'
@@ -125,26 +102,37 @@ def runAlg():
         feats = feats[:-1] + str('}') if len(feats) > 2 else feats + str('}')
 
     algParams_json = json.dumps(algParams)
-    # algParams_json = json.loads(algParams_json)
 
     print('LMAO "DEBUGGING"')
-    print(feats)
-    checkExisting = connect('SELECT prun_results FROM prun WHERE prun_alg = \'' + algorithm + '\' AND prun_dataset = \'' + dataset + '\' AND prun_params = cast(\'' + algParams_json + '\' AS json) AND prun_feats = \'' + feats +'\';')
-    checkExisting = connect('SELECT prun_results FROM prun WHERE prun_alg = \'' + algorithm + '\' AND prun_dataset = \'' + dataset + '\' AND prun_feats = \'' + feats +'\';')
+    print(algParams_json)
+    cE_str = f"""
+        select prun_results from prun
+        where prun_alg = '{algorithm}'
+        and prun_dataset = '{dataset}'
+        and (
+                prun_params::jsonb @> '{algParams_json}'::jsonb
+                and 
+                prun_params::jsonb <@ '{algParams_json}'::jsonb
+            )
+        and prun_feats = '{feats}';
+    """
+
+    checkExisting = connect(cE_str)
 
     # This is the bit that runs code - probably modularize this
-    if checkExisting is not None:
+    if checkExisting != []:
         results = checkExisting[0][0]
         ret_val = {}
         ret_val['acc'] = results['acc']
         ret_val['sd'] = results['sd']
         print('I FOUND IT, NO RUNNING THE MODEL NECESSARY')
     else:
+        # Generalize this
         results = testLR(dataPath, idxsPath, features, float(algParams['C']), sens_idx-1, 1,2)
         ret_val = {}
         ret_val['acc'] = results[0]
         ret_val['sd'] = results[1]
-        #connect_insert('INSERT INTO prun (prun_alg, prun_dataset, prun_params, prun_results, prun_feats) VALUES (\'' + algorithm + '\', \'' + dataset + '\', \'' + algParams +'\', \'' + str(json.dumps(ret_val)) + '\', \'' + feats + '\'); COMMIT;')
+        connect_insert('INSERT INTO prun (prun_alg, prun_dataset, prun_params, prun_results, prun_feats) VALUES (\'' + algorithm + '\', \'' + dataset + '\', \'' + algParams_json +'\', \'' + str(json.dumps(ret_val)) + '\', \'' + feats + '\'); COMMIT;')
 
 
     return json.dumps(ret_val)

@@ -5,7 +5,6 @@ var table = new Tabulator("#dataVisualizationTable", {
     height: "600px",
     placeholder: "Please choose a dataset",
     columns: [
-        //{title:"Include", field:"include"},
         {
             formatter: "rowSelection",
             titleFormatter: "rowSelection",
@@ -28,9 +27,6 @@ var table = new Tabulator("#dataVisualizationTable", {
         },
     ],
 });
-
-//table.setData(tableData);
-//table.replaceData(tableData); (OPTIONAL AND POSSIBLY FUCKING ANNOYING TO IMPLEMENT)
 
 function showTable() {
     // var elem = document.getElementById("dataVisTable");
@@ -71,7 +67,7 @@ $(function () {
         console.log(document.getElementById("dataset").value);
         $.ajax({
             type: "POST",
-            url: "/dataSelect?dataname=" + document.getElementById("dataset").value,
+            url: "/dataSelect?shortdataname=" + document.getElementById("dataset").value,
             timeout: 0,
             data: $("#dataset").serialize(),
             success: function (data) {
@@ -81,34 +77,9 @@ $(function () {
 
                 var dict_keys = Object.keys(formData);
 
-                //    for (i = 0; i < dict_keys.length; i++) {
-                //        $('#dataVisCheckpoint').append('<tr>'+'\n'+ '<td class="text-center"><input id = "' + i + '" type="checkbox"/></td>' + '\n' +'<td class="text-center">' + dict_keys[i] +'</td>'
-                //                                     + '<td class="text-center">' + '<img class="graph" src="static/creditdefault/'+ formData[dict_keys[i]] + '"></td>'+'\n'+'</tr>');
-
-                //    $('#addFeatsHere').append('<input type="checkbox" id="' + i + '" name="features" value="' + i + '"><label>'+dict_keys[i]+'</label><br>')
-                //    }
                 table.setData(formData);
             },
         });
-    });
-});
-
-$("#addFeatsHere").on("click", 'input[type="checkbox"]', function (e) {
-    if (e.target.name == "features") {
-        typeItemsChecked[e.target.value] = e.target.value;
-        $("#" + e.target.id).prop("checked", true);
-    }
-    e.preventDefault();
-    console.log(typeItemsChecked);
-    $.ajax({
-        type: "POST",
-        url: "/featSelect",
-        data: JSON.stringify(typeItemsChecked),
-        contentType: "application/json",
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-        },
     });
 });
 
@@ -130,6 +101,10 @@ $(function () {
                 var params = algData[alg_keys[0]];
 
                 var param_keys = Object.keys(params);
+
+                // Workaround - just ensure that the hyperparameter div is absolutely empty
+                //  before adding a new hyperparameter section
+                $("#addParamsHere")[0].innerHTML = "";
 
                 $("#addParamsHere").append(
                     "<br/><p>Optional Hyperparameters for " +
@@ -162,10 +137,10 @@ $(document).on("submit", function (e) {
     console.log(JSON.stringify(hypers));
     e.preventDefault();
     var feat_idxs = [];
-    $("#dataVisTable input[type=checkbox]:checked").each(function () {
-        var row = $(this).closest("tr")[0];
-        feat_idxs.push(parseInt(row.cells[0].firstChild.id));
-    });
+
+    for (obj of table.getSelectedData()) {
+        feat_idxs.push(obj["feat_id"]);
+    }
 
     hypers["feat_idxs"] = feat_idxs;
 
@@ -194,15 +169,4 @@ $(document).on("submit", function (e) {
         },
     });
     //return false;
-});
-
-function toggleAll(source) {
-    checkboxes = document.getElementsByName("features");
-    for (var i = 0, n = checkboxes.length; i < n; i++) {
-        checkboxes[i].checked = source.checked;
-    }
-}
-
-$("#checkAll").click(function () {
-    $("input:checkbox").not(this).prop("checked", this.checked);
 });
