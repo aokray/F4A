@@ -108,9 +108,28 @@
     </div>
 
     <hr>
-    <div id='results'>
-        <p id='accuracy'></p>
-        <p id='sd'></p>
+    <!-- Is toggling display from none -> block the best strategy? -->
+    <div id='results_div' style="display:none;" class='container-fluid'>
+        <div class='row'>
+            <div class='col-md-1'></div>
+            <div class='col-md-10' id='results'>
+                <span style="text-decoration: underline;"><h1 class='text-center'>Here are your results:</h1></span>
+            </div>
+            <div class='col-md-1'></div>
+        </div>
+
+        <div class='row'>
+            <div class='col-md-1'></div>
+            <div class='col-md-10' id='results'>
+                <p><span id='accuracy'></span></p>
+                <p><span id='sd'></span></p>
+                <p><span id='p_up'></span></p>
+                <p><span id='p_down'></span></p>
+                <p><span id='u_up'></span></p>
+                <p><span id='u_down'></span></p>
+            </div>
+            <div class='col-md-1'></div>
+        </div>
     </div>
     <hr>
 

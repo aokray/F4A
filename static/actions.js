@@ -157,8 +157,19 @@ $(document).on("submit", function (e) {
 
             //$("#runModel").attr('onclick','this.style.opacity = "1"; return true;');
             // document.getElementById("runModel").disabled = false;
-            $("#accuracy").text("Accuracy: " + data["acc"]);
-            $("#sd").text("SD: " + data["sd"]);
+
+            var names = data[0]["sens_names"];
+            var lab = data[0]["label_desc"];
+            var res = data[1];
+
+            // Make the results div appear
+            document.getElementById("results_div").style.display = 'block';
+            $("#accuracy").text("Accuracy: " + res["acc"]);
+            $("#sd").text("SD: " + res["sd"]);
+            $("#p_up").text("The class " + names[0] + " had " + res["P_up"] + " " + lab + ".");
+            $("#p_down").text("The class " + names[0] + " had " + res["P_down"] + " " + lab + ".");
+            $("#u_up").text("The class " + names[1] + " had " + res["U_up"] + " " + lab + ".");
+            $("#u_down").text("The class " + names[1] + " had " + res["U_down"] + " " + lab + ".");
         },
     });
     //return false;

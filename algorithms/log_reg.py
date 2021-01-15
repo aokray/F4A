@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import numpy as np
 
-# hyperp can later be expanded to *args or **kwargs if desired
+# hyperp can later be expanded to **kwargs
 def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
     data = np.loadtxt(data_path, delimiter=',')
 
@@ -27,5 +27,11 @@ def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
 
     acc = accuracy_score(label_test, preds)
     sd = np.abs(np.average(preds[p_test_idxs]) - np.average(preds[u_test_idxs]))
+    
+    # Get the number of unprotected classes predicted as the up/down class and the same for the protected class
+    U_up = int(np.sum(label_test[u_test_idxs] == 1))
+    U_down = int(np.sum(label_test[u_test_idxs] == 0))
+    P_up = int(np.sum(label_test[p_test_idxs] == 1))
+    P_down = int(np.sum(label_test[p_test_idxs] == 0))
 
-    return (acc,sd)
+    return (acc, sd, U_up, U_down, P_up, P_down)

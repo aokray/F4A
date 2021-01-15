@@ -49,12 +49,14 @@ def dataSelect():
     dataShortName = request.args.get("shortdataname")
 
     feats_sql = f"""
-        SELECT dataset_featnames fROM datasets
+        SELECT dataset_featnames FROM datasets
         WHERE dataset_shortname = '{dataShortName}';
     """
 
     feats = connect(feats_sql)[0][0]
+    # sens = connect(data_info_sql)[0][1]
     feat_names = [x.strip() for x in feats.split(",")]
+    # sens_names = [x.strip() for x in sens.split(",")]
 
     # still need until admin page
     # all = connect('SELECT * FROM datasets WHERE dataset_name = \'' + dataset +'\'')[0]
@@ -108,7 +110,7 @@ def runAlg():
     del algParams["feat_idxs"]
 
     dat_info_query = f"""
-        SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name from datasets
+        SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc from datasets
         WHERE dataset_shortname = '{dataShortName}';
     """
     dat_info = connect(dat_info_query)[0]
@@ -116,6 +118,9 @@ def runAlg():
     idxsPath = dat_info[1]
     sens_idx = dat_info[2]
     dataset = dat_info[3]
+    sens_names = dat_info[4]
+    sens_names = [x.strip() for x in sens_names.split(",")]
+    label_desc = dat_info[5]
 
     # TODO: Raise an error here if no features are chosen, on the off-chance that the front-end validation fails
     if features == None:
@@ -150,6 +155,10 @@ def runAlg():
         ret_val = {}
         ret_val["acc"] = results["acc"]
         ret_val["sd"] = results["sd"]
+        ret_val["U_up"] = results["U_up"]
+        ret_val["U_down"] = results["U_down"]
+        ret_val["P_up"] = results["P_up"]
+        ret_val["P_down"] = results["P_down"]
         print("I FOUND IT, NO RUNNING THE MODEL NECESSARY")
     else:
         # Generalize this
@@ -159,6 +168,11 @@ def runAlg():
         ret_val = {}
         ret_val["acc"] = results[0]
         ret_val["sd"] = results[1]
+        ret_val["U_up"] = results[2]
+        ret_val["U_down"] = results[3]
+        ret_val["P_up"] = results[4]
+        ret_val["P_down"] = results[5]
+        
         ins_sql = f"""
             INSERT INTO prun VALUES
                 (
@@ -173,4 +187,4 @@ def runAlg():
 
         connect_insert(ins_sql)
 
-    return json.dumps(ret_val)
+    return json.dumps([{'sens_names': sens_names, 'label_desc': label_desc}, ret_val])
