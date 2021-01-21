@@ -18,7 +18,7 @@ def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
     if (feats != None):
         sample = sample[:,feats]
 
-    lr = LogisticRegression(C=hyperp)
+    lr = LogisticRegression(C=hyperp, max_iter = 1000)
     lr.fit(sample_train, label_train)
     preds = lr.predict(sample_test)
 

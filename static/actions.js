@@ -1,7 +1,7 @@
 var typeItemsChecked = {};
 
 var table = new Tabulator("#dataVisualizationTable", {
-    //layout: "fitDataFill",
+    layout: "fitDataStretch",
     height: "600px",
     placeholder: "Please choose a dataset",
     columns: [
@@ -28,19 +28,6 @@ var table = new Tabulator("#dataVisualizationTable", {
     ],
 });
 
-function showTable() {
-    // var elem = document.getElementById("dataVisTable");
-    var elem2 = document.getElementById("dataCheckboxes");
-    var dataSelected = document.getElementById("dataset").value;
-
-    if (dataSelected) {
-        // elem.style.display = "block";
-        elem2.style.display = "block";
-    } else {
-        // elem.style.display = "none";
-        elem2.style.display = "none";
-    }
-}
 
 function showSubmitButton() {
     var elem = document.getElementById("submitButton");
@@ -49,6 +36,7 @@ function showSubmitButton() {
 
     if (dataSelected && algSelected) {
         elem.style.display = "block";
+        document.getElementById("belowSubmit").style.display = "block";
     } else {
         elem.style.display = "none";
     }
@@ -137,6 +125,7 @@ $(document).on("submit", function (e) {
     }
 
     hypers["feat_idxs"] = feat_idxs;
+    document.getElementById("results_div").style.display = 'none';
 
     // TODO: Disable the button, """ezpz"""
     $.ajax({
@@ -158,19 +147,24 @@ $(document).on("submit", function (e) {
             //$("#runModel").attr('onclick','this.style.opacity = "1"; return true;');
             // document.getElementById("runModel").disabled = false;
 
-            var names = data[0]["sens_names"];
-            var lab = data[0]["label_desc"];
+            document.getElementById("loading").style.display = 'none';
+
             var res = data[1];
+            var res_str = data[0];
+            console.log(data);
+            console.log(res);
+
 
             // Make the results div appear
             document.getElementById("results_div").style.display = 'block';
             $("#accuracy").text("Accuracy: " + res["acc"]);
             $("#sd").text("SD: " + res["sd"]);
-            $("#p_up").text("The class " + names[0] + " had " + res["P_up"] + " " + lab + ".");
-            $("#p_down").text("The class " + names[0] + " had " + res["P_down"] + " " + lab + ".");
-            $("#u_up").text("The class " + names[1] + " had " + res["U_up"] + " " + lab + ".");
-            $("#u_down").text("The class " + names[1] + " had " + res["U_down"] + " " + lab + ".");
+            $("#p_up").text(res_str[0]);
+            $("#p_down").text(res_str[1]);
+            $("#u_up").text(res_str[2]);
+            $("#u_down").text(res_str[3]);
         },
     });
+    document.getElementById("loading").style.display = 'block';
     //return false;
 });

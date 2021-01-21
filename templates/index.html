@@ -28,7 +28,7 @@
             </div>
             <!--div class='col-md-6 clearfix'></div-->
             <div class='col-md-2'>
-                <img style="float:right;" src="{{ url_for('static', filename='uwyo_ask_lars.png') }}" class="topright rounded-circle" >
+                <img style="float:right;" src="{{ url_for('static', filename='f4a_logo.png') }}" class="topright rounded-circle" >
             </div>
         </div>
     </div>
@@ -42,42 +42,21 @@
 
                 <br/>
                 <form action='/dataSelect' method='POST'>
-                    <!--select name='dataset' onchange=";" onclick="showTable()" id='dataset'-->
                     <select name='dataset' id="dataset">
                         <option disabled selected value>-- Select a value --</option>
-                        <!--option>Credit Default</option-->
                         {% for dataset in dataset_names %}
                             <option value="{{ dataset[1] }}">{{ dataset[0] }}</option>
                         {% endfor %}
                     </select>
                 </form>
             </div>
-            <!-- <div id="dataVisTable" class='col-md-9'>
-                <form action="/featSelect">
-                    <table class='dataTable' id='dataVisCheckpoint'>
-                        <tr>
-                            <td class='col-md-1'><span style="font-weight: bold; text-decoration: underline;">Include</span></td>
-                            <td class='col-md-3'>&nbsp; <span style="font-weight: bold; text-decoration: underline;">Feature Name</span> &nbsp;</td>
-                            <td class='col-md-8'> &nbsp; <span style="font-weight: bold; text-decoration: underline;">Distributions</span>  &nbsp;</td>
-                        </tr>
-                    </table>
-                </form>
-            </div> -->
-            <div id='dataVisualizationTable'></div>
+
+            <div class='col-md-8'>
+                <div id='dataVisualizationTable'></div>
+            </div>
         </div>
 
-        <!--div id="dataCheckboxes" class='row'>
-            <div class='col-md-3'>
-
-            </div>
-
-            <div class='col-md-9'>
-                <form id='addFeatsHere' action='/featSelect'>
-                    <p><span style="font-weight: bold; text-decoration: underline;">Select Which Features to Use</span></p>
-                    <input type="checkbox" id="checkAll" />Toggle All<br>
-                </form>
-            </div>
-        </div-->
+        <hr>
 
         <div class='row'>
             <div class='col-md-2'>
@@ -107,9 +86,12 @@
         </form>
     </div>
 
-    <hr>
+    <hr id='belowSubmit' style="display:none;">
+
+    <div style='display:none;' id='loading' class="c_loader loader"></div> 
     <!-- Is toggling display from none -> block the best strategy? -->
     <div id='results_div' style="display:none;" class='container-fluid'>
+        
         <div class='row'>
             <div class='col-md-1'></div>
             <div class='col-md-10' id='results'>
@@ -130,8 +112,9 @@
             </div>
             <div class='col-md-1'></div>
         </div>
+        <hr>
     </div>
-    <hr>
+    
 
     <script src="{{ url_for('static', filename='actions.js') }}"></script>
 </body>

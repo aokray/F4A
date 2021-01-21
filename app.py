@@ -104,13 +104,16 @@ def algSelect():
 @app.route("/runAlg", methods=["GET", "POST", "PUT"])
 def runAlg():
     global dataShortName, algorithm, algParams, features
+    ret_strs = []
+    ret_val = {}
+
     algParams = request.get_json()
 
     features = algParams["feat_idxs"]
     del algParams["feat_idxs"]
 
     dat_info_query = f"""
-        SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc from datasets
+        SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{dataShortName}';
     """
     dat_info = connect(dat_info_query)[0]
@@ -121,6 +124,7 @@ def runAlg():
     sens_names = dat_info[4]
     sens_names = [x.strip() for x in sens_names.split(",")]
     label_desc = dat_info[5]
+    res_str = dat_info[6]
 
     # TODO: Raise an error here if no features are chosen, on the off-chance that the front-end validation fails
     if features == None:
@@ -152,7 +156,6 @@ def runAlg():
     # TODO: Modularize this
     if checkExisting != []:
         results = checkExisting[0][0]
-        ret_val = {}
         ret_val["acc"] = results["acc"]
         ret_val["sd"] = results["sd"]
         ret_val["U_up"] = results["U_up"]
@@ -165,7 +168,6 @@ def runAlg():
         results = testLR(
             dataPath, idxsPath, features, float(algParams["C"]), sens_idx - 1, 1, 2
         )
-        ret_val = {}
         ret_val["acc"] = results[0]
         ret_val["sd"] = results[1]
         ret_val["U_up"] = results[2]
@@ -187,4 +189,11 @@ def runAlg():
 
         connect_insert(ins_sql)
 
-    return json.dumps([{'sens_names': sens_names, 'label_desc': label_desc}, ret_val])
+    ks = list(ret_val.keys())
+    for idx in range(len(ks) - 2):
+        if idx < 2:
+            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[0].lower()))
+        else:
+            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[1].lower()))
+
+    return json.dumps([ret_strs, ret_val])
