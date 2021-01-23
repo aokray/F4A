@@ -1,5 +1,3 @@
-var typeItemsChecked = {};
-
 var table = new Tabulator("#dataVisualizationTable", {
     layout: "fitDataStretch",
     height: "600px",
@@ -127,6 +125,8 @@ $(document).on("submit", function (e) {
     hypers["feat_idxs"] = feat_idxs;
     document.getElementById("results_div").style.display = 'none';
 
+    $(this).find(':input[type=submit]').prop('disabled', true);
+
     // TODO: Disable the button, """ezpz"""
     $.ajax({
         type: "POST",
@@ -136,17 +136,7 @@ $(document).on("submit", function (e) {
         contentType: "application/json",
         dataType: "json",
         success: function (data) {
-            // console.log(data);
-            // Need to parse sub JSON file?
-            //algData = JSON.parse(data);
-            //console.log(algData);
-            // TODO: On success, re-enable the button
-            //$("#runModel").attr('onclick','this.style.opacity = "0.6"; return false;');
-            // document.getElementById("runModel").disabled = true;
-
-            //$("#runModel").attr('onclick','this.style.opacity = "1"; return true;');
-            // document.getElementById("runModel").disabled = false;
-
+            $("#runModel").prop('disabled', false);
             document.getElementById("loading").style.display = 'none';
 
             var res = data[1];
@@ -166,5 +156,4 @@ $(document).on("submit", function (e) {
         },
     });
     document.getElementById("loading").style.display = 'block';
-    //return false;
 });
