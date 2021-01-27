@@ -2,7 +2,7 @@
 A website to help explain fair machine learning (video demonstration incoming).
 
 # Setup Instructions
-(Please note, these are a work in progress. There are parts missing that are vital for F4A to work. Please contact me at (arokray@gmail.com)[mailto:arokray@gmail.com] if you'd like to deploy this or contribute, I can get you up and running before later versions are deployed.
+(Please note, these are a work in progress. There are parts missing that are vital for F4A to work. Please contact me at (arokray@gmail.com)[arokray@gmail.com] if you'd like to deploy this or contribute, I can get you up and running before later versions are deployed.
 
 # Prerequisites
 
