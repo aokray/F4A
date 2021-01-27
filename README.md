@@ -7,6 +7,7 @@ A website to help explain fair machine learning (video demonstration incoming).
 # Prerequisites
 
 Python >= 3.5 (Highly recommended: Anaconda)
+
 Postgres 13
 
 # Setup
