@@ -14,7 +14,7 @@ var table = new Tabulator("#dataVisualizationTable", {
         },
         { title: "Feature ID", field: "feat_id", visible: false},
         { title: "Feature Name", field: "featname", sorter: "string" },
-        { title: "Similarity", field: "metric", sorter: "number" },
+        { title: "Distance", field: "metric", sorter: "number" },
         {
             title: "Distribution",
             field: "dist",

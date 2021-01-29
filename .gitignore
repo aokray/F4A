@@ -132,7 +132,6 @@ dmypy.json
 # Photos and data
 .csv
 .png
-datasets/
 
 # Libraries
 tabulator-master/

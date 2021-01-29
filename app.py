@@ -49,11 +49,13 @@ def dataSelect():
     dataShortName = request.args.get("shortdataname")
 
     feats_sql = f"""
-        SELECT dataset_featnames FROM datasets
+        SELECT dataset_featnames, dataset_hdist FROM datasets
         WHERE dataset_shortname = '{dataShortName}';
     """
 
-    feats = connect(feats_sql)[0][0]
+    query = connect(feats_sql)[0]
+    feats = query[0]
+    hdists = query[1]
     # sens = connect(data_info_sql)[0][1]
     feat_names = [x.strip() for x in feats.split(",")]
     # sens_names = [x.strip() for x in sens.split(",")]
@@ -75,7 +77,7 @@ def dataSelect():
             {
                 "feat_id": i,
                 "featname": feat_names[i],
-                "metric": np.random.rand(1)[0],
+                "metric": hdists[i],
                 "dist": str(dataShortName) + "/" + str(dataShortName) + str(i),
             }
         )
