@@ -114,6 +114,9 @@ def runAlg():
     features = algParams["feat_idxs"]
     del algParams["feat_idxs"]
 
+    if algParams["C"]:
+        algParams["C"] = float(algParams["C"])
+
     dat_info_query = f"""
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{dataShortName}';
@@ -168,7 +171,7 @@ def runAlg():
     else:
         # Generalize this
         results = testLR(
-            dataPath, idxsPath, features, float(algParams["C"]), sens_idx - 1, 1, 2
+            dataPath, idxsPath, features, algParams, sens_idx - 1, 1, 2
         )
         ret_val["acc"] = results[0]
         ret_val["sd"] = results[1]

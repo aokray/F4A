@@ -1,0 +1,11 @@
+# Not really sure where to put this? Probably move it somewhere useful later.
+
+# Dumping:
+# Schema only:
+pg_dump -s -U postgres F4A > DIRECTORY\FILE_NAME.sql
+
+# Data only:
+pg_dump -a -U postgres F4A > DIRECTORY\FILE_NAME.sql
+
+# Loading (DOUBLE CHECK THIS):
+psql -U postgres F4A < infile.sql

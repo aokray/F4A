@@ -1,6 +1,9 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import MinMaxScaler
 import numpy as np
+
+scaler = MinMaxScaler()
 
 # hyperp can later be expanded to **kwargs
 def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
@@ -20,6 +23,8 @@ def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
     p_downs = []
 
     sample = data[:,0:-1]
+    all_feat_idxs = np.arange(sample.shape[1])
+    sample[:,np.setdiff1d(all_feat_idxs, sens_idx)] = scaler.fit_transform(sample[:,np.setdiff1d(all_feat_idxs, sens_idx)])
     label = data[:,-1]
 
     for idx_row in train_idxs:
@@ -34,7 +39,7 @@ def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
             sample_train = sample_train[:,feats]
             sample_test = sample_test[:,feats]
 
-        lr = LogisticRegression(C=hyperp, max_iter = 1000)
+        lr = LogisticRegression(max_iter = 1000, **hyperp)
         lr.fit(sample_train, label_train)
         preds = lr.predict(sample_test)
 
@@ -45,10 +50,10 @@ def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
         sd = np.abs(np.average(preds[p_test_idxs]) - np.average(preds[u_test_idxs]))
         
         # Get the number of unprotected classes predicted as the up/down class and the same for the protected class
-        U_up = int(np.sum(label_test[u_test_idxs] == 1))
-        U_down = int(np.sum(label_test[u_test_idxs] == 0))
-        P_up = int(np.sum(label_test[p_test_idxs] == 1))
-        P_down = int(np.sum(label_test[p_test_idxs] == 0))
+        U_up = int(np.sum(preds[u_test_idxs] == 1))
+        U_down = int(np.sum(preds[u_test_idxs] == 0))
+        P_up = int(np.sum(preds[p_test_idxs] == 1))
+        P_down = int(np.sum(preds[p_test_idxs] == 0))
 
         accs.append(acc)
         sds.append(sd)
