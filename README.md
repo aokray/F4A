@@ -1,3 +1,5 @@
+<img src='static/f4a_logo.png' alt='F4A Logo' width='200'/>
+
 # F4A
 A website to help explain fair machine learning (video demonstration incoming).
 
@@ -23,6 +25,7 @@ Ensure you have Python 3.5 or greater installed
 Download and install Postgres 13
 - Set up your username and password
 - Load your username/password into the database.ini file
+- ...
 
 Ensure that your Python 3.5+ install is being used (whether it be globally via PATH variable or activated virtual environment) by opening Python in a command prompt. Ensure the Python version at the top is correct.
 
@@ -33,9 +36,8 @@ Clone this repository, or download the code into a single folder.
 Download and unzip [Tabulator](http://tabulator.info/) v4.9 (older/newer versions may work, but 4.9 certainly works) into the static/ folder.
 
 Modify the database.ini file to match your database's credentials
-- Optional: Use environment variables instead of explicitly coding in username and password.
 
-Download data (suggested: [https://uwyomachinelearning.github.io/](https://uwyomachinelearning.github.io/)) and load the CSV files into the "datasets/" folder. 
+Download data (suggested: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder. 
 - Each dataset requires:
     - 1.) The dataset itself (as a CSV file for now)
     - 2.) *n* rows of training index sets, where the number of columns is the number of instances in the training set and each entry is the index of a training sample.

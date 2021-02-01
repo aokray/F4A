@@ -9,7 +9,6 @@ scaler = MinMaxScaler()
 def testLR(data_path, idxs_path, feats, hyperp, sens_idx, u_value, p_value):
     data = np.loadtxt(data_path, delimiter=',')
     idxs = np.loadtxt(idxs_path, delimiter=',')
-    idxs = idxs - 1
     idxs = idxs.astype(int)
 
     # Get a subset of idxs
