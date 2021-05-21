@@ -1,3 +1,4 @@
+-- Stores all relevant information about datasets
 CREATE TABLE datasets (
     dataset_name TEXT NOT NULL PRIMARY KEY,
     dataset_origin TEXT NOT NULL,
@@ -13,22 +14,27 @@ CREATE TABLE datasets (
     dataset_hdist REAL[] NOT NULL
 );
 
+-- The algorithm validation table
 CREATE TABLE algv (
     algv_algname TEXT NOT NULL PRIMARY KEY,
     algv_params BOOLEAN
 );
 
+-- The parameter validation table
 CREATE TABLE paramsv (
     paramsv_alg TEXT NOT NULL,
     paramsv_param TEXT NOT NULL, -- Not null, no alg. MUST be loaded in this table but any that is must have a hyperparameter associated
-    paramsv_domain TEXT[] NOT NULL
+    paramsv_domain TEXT[] -- NUll allowable, some hyperp's are L1 vs L2 loss which is a learning method setting, NOT a numerical value
 );
 
+-- Stores all text shown on the webpage, allows for changes w/o code changes
 CREATE TABLE webtext (
     webtext_key TEXT NOT NULL PRIMARY KEY,
     webtext_value TEXT NOT NULL
 );
 
+-- Previoues runs table, records relevant info about results and settings of previous runs of a given
+-- ML model with features "prun_feats" and hyperparameters described in the prunhv table
 CREATE TABLE prun (
     prun_alg TEXT NOT NULL,
     prun_dataset TEXT NOT NULL,
@@ -43,6 +49,8 @@ CREATE TABLE prun (
 CREATE INDEX prun_alg_data
 ON prun (prun_alg, prun_dataset);
 
+-- Previous runs hyperparameter values table, stores information about hyperparameter settings for 
+-- a given run prunhv_id
 CREATE TABLE prunhv (
     prunhv_id INTEGER NOT NULL UNIQUE,
     prunhv_name TEXT NOT NULL,
@@ -52,6 +60,7 @@ CREATE TABLE prunhv (
             REFERENCES prun (prun_id)
 );
 
+-- Trigger to make sure that any entry in paramsv_param column are valid hyperparameters that exist in paramsv
 CREATE OR REPLACE FUNCTION f_hyperp_check() RETURNS trigger AS $$
     DECLARE
         v_hv_exists BOOLEAN;
