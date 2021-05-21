@@ -96,7 +96,7 @@ def algSelect():
 
     if isParams:
         params_sql = f"""
-            SELECT paramsv_params FROM paramsv
+            SELECT paramsv_param FROM paramsv
             WHERE paramsv_alg = '{algorithm}';
         """
         params = connect(params_sql)[0][0]
@@ -118,8 +118,9 @@ def runAlg():
     features = algParams["feat_idxs"]
     del algParams["feat_idxs"]
 
-    if 'C' in algParams:
-        algParams["C"] = float(algParams["C"])
+    # Temporary measure - only allow real numbers to be hyperparameters, e.g. no changing loss function from L1 to L2
+    for key, val in algParams.items():
+        algParams[key] = float(algParams[key])
 
     dat_info_query = f"""
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets

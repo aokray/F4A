@@ -1,4 +1,6 @@
-<img src='static/f4a_logo.png' alt='F4A Logo' width='200'/>
+<p align='center'>
+    <img src='static/f4a_logo.png' alt='F4A Logo' width='250'/>
+</p>
 
 # F4A
 A website to help explain fair machine learning (video demonstration incoming).
