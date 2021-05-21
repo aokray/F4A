@@ -20,7 +20,7 @@ CREATE TABLE algv (
 
 CREATE TABLE paramsv (
     paramsv_alg TEXT NOT NULL,
-    paramsv_params TEXT NOT NULL, -- Not null, no alg. MUST be loaded in this table but any that is must have a hyperparameter associated
+    paramsv_param TEXT NOT NULL, -- Not null, no alg. MUST be loaded in this table but any that is must have a hyperparameter associated
     paramsv_domain TEXT[] NOT NULL
 );
 
@@ -49,25 +49,22 @@ CREATE TABLE prunhv (
     prunhv_value REAL NOT NULL,
     CONSTRAINT fk_id
         FOREIGN KEY (prunhv_id)
-            REFERENCES prun (prun_id),
-    CONSTRAINT fk_name
-        FOREIGN KEY (prunhv_name)
-            REFERENCES algv (algv_algname)
+            REFERENCES prun (prun_id)
 );
 
 CREATE OR REPLACE FUNCTION f_hyperp_check() RETURNS trigger AS $$
     DECLARE
         v_hv_exists BOOLEAN;
     BEGIN
-        SELECT paramsv_params = NEW.prunhv_name
+        SELECT paramsv_param = NEW.prunhv_name
         INTO v_hv_exists
         FROM paramsv
-        WHERE paramsv_params = NEW.prunhv_name;
+        WHERE paramsv_param = NEW.prunhv_name;
 
         IF v_hv_exists THEN
             RETURN NEW;
         ELSE
-            RAISE EXCEPTION 'Cannot insert hyperparameter % into prunhv without a matching value in paramsv_params', NEW.prunhv_name;
+            RAISE EXCEPTION 'Cannot insert hyperparameter % into prunhv without a matching value in paramsv_param', NEW.prunhv_name;
         END IF;
 
     END;
