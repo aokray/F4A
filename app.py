@@ -100,6 +100,8 @@ def algSelect():
             WHERE paramsv_alg = '{algorithm}';
         """
         params = connect(params_sql)[0][0]
+        print('PARAMS')
+        print(json.dumps(params))
 
     return f'{{"{algorithm}": {json.dumps(params)}}}'
 
@@ -111,16 +113,19 @@ def runAlg():
 
     algParams = request.get_json()
 
+    # Features aren't algorithm parameters, but it's easy to ship them to the backend this way for now
+    # Delete them so we don't consume them as hyperp's
     features = algParams["feat_idxs"]
     del algParams["feat_idxs"]
 
-    if algParams["C"]:
+    if 'C' in algParams:
         algParams["C"] = float(algParams["C"])
 
     dat_info_query = f"""
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{dataShortName}';
     """
+
     dat_info = connect(dat_info_query)[0]
     dataPath = dat_info[0]
     idxsPath = dat_info[1]
@@ -144,23 +149,26 @@ def runAlg():
 
     algParams_json = json.dumps(algParams)
 
+    sel_str = ''
+
+    for key, val in algParams.items():
+        sel_str += f' and prunhv_name = \'{key}\' and prunhv_value = {val}'
+
     cE_str = f"""
         select prun_results from prun
+        INNER JOIN prunhv on prun_id = prunhv_id
         where prun_alg = '{algorithm}'
         and prun_dataset = '{dataset}'
-        and (
-                prun_params::jsonb @> '{algParams_json}'::jsonb
-                and 
-                prun_params::jsonb <@ '{algParams_json}'::jsonb
-            )
-        and prun_feats = '{feats}';
+        and prun_feats = '{feats}'
+        {sel_str};
     """
 
     checkExisting = connect(cE_str)
 
     # TODO: Modularize this
-    if checkExisting != []:
+    if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
+        
         ret_val["acc"] = results["acc"]
         ret_val["sd"] = results["sd"]
         ret_val["U_up"] = results["U_up"]
@@ -179,20 +187,36 @@ def runAlg():
         ret_val["U_down"] = results[3]
         ret_val["P_up"] = results[4]
         ret_val["P_down"] = results[5]
+
+        get_id = "SELECT MAX(prun_id) from prun;";
+        largest_id = connect(get_id)[0][0]
+        if largest_id == [] or largest_id == None:
+            largest_id = 0
+        else:
+            largest_id = largest_id + 1
         
         ins_sql = f"""
-            INSERT INTO prun VALUES
+            INSERT INTO prun (prun_alg, prun_dataset, prun_id, prun_results, prun_feats) VALUES
                 (
                     '{algorithm}',
                     '{dataset}',
-                    '{algParams_json}',
+                    '{largest_id}',
                     '{str(json.dumps(ret_val))}',
                     '{feats}'
                 );
             COMMIT;
         """
 
+        args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in algParams.items())
+
+        ins_sql2 = f"""
+            INSERT INTO prunhv (prunhv_id, prunhv_name, prunhv_value) VALUES
+            {args_str};
+            COMMIT;
+        """
+
         connect_insert(ins_sql)
+        connect_insert(ins_sql2)
 
     ks = list(ret_val.keys())
     for idx in range(len(ks) - 2):

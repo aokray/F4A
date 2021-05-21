@@ -73,13 +73,8 @@ def connect_insert(istring):
         cur = conn.cursor()
 
         # execute a statement
-        print('Querying...')
+        print('Inserting...')
         cur.execute(istring)
-
-
-        # display the PostgreSQL database server version
-        # db_version = cur.fetchone()
-        # print(db_version)
 
         # returnVal = cur.fetchall()
         # print(returnVal)

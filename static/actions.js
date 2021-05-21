@@ -81,6 +81,7 @@ $(function () {
                 var alg_keys = Object.keys(algData);
 
                 var params = algData[alg_keys[0]];
+                console.log(params)
 
                 var param_keys = Object.keys(params);
 
@@ -101,7 +102,7 @@ $(function () {
                             "  (" +
                             params[param_keys[i]] +
                             '):  <input type="text" id="' +
-                            param_keys[i] +
+                            params[param_keys[i]] +
                             '" name="hyperp">' +
                             "</p><br/>"
                     );

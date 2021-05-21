@@ -9,7 +9,7 @@ A website to help explain fair machine learning (video demonstration incoming).
 
 
 # Setup Instructions
-(Please note, these instructions are a work in progress. There are parts missing that are vital for F4A to work. Please contact me at arokray@gmail.com if you'd like to deploy this or contribute, I can get you up and running before later versions are deployed.)
+(Please note, these instructions are a work in progress.)
 
 # Prerequisites
 
@@ -31,13 +31,13 @@ Ensure that your Python 3.5+ install is being used (whether it be globally via P
 
 ## Stage 2: Project Setup
 
-Clone this repository, or download the code into a single folder.
+1.) Clone this repository, or download the code into a single folder.
 
-Download and unzip [Tabulator](http://tabulator.info/) v4.9 (older/newer versions may work, but 4.9 certainly works) into the static/ folder.
+2.) Download and unzip [Tabulator](http://tabulator.info/) v4.9 (older/newer versions may work, but 4.9 certainly works) into the static/ folder.
 
-Modify the database.ini file to match your database's credentials
+3.) Modify the database.ini file to match your database's credentials
 
-Download data (suggested: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder. 
+4.) Download data (suggested/see for a template of data format: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder. 
 - Each dataset requires:
     - 1.) The dataset itself (as a CSV file for now)
     - 2.) *n* rows of training index sets, where the number of columns is the number of instances in the training set and each entry is the index of a training sample.
@@ -61,7 +61,11 @@ Download data (suggested: [http://okray.ml/data](http://okray.ml/data)) and load
 
         2.) To ensure that the results of the algorithm are *static*, so we can load them into/out of the database for faster lookup times. This is very important for more complex algorithms
 
-# Roadmap
-Currently, the project is in a stable state and can be deployed locally. Spring 2021 semester begins February 1st, and my master's degree is my first priority currently. That said, I still plan on developing this application and deploying it by the end of May 2021.
 
+5.) Set up the database
+- Open the db_init folder and run the "create.sql" file. This will make the necessary database tables.
+- Optional: Run the "load.sql" file to load in the Credit Default data set example
+
+# Roadmap
+Currently, the project is in a stable state and can be deployed locally.
 The roadmap for this project is tracked through a Notion project here: https://www.notion.so/F4A-645d588e7b194366b05855778bce17ea
