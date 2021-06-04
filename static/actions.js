@@ -77,6 +77,7 @@ $(function () {
             data: $("#algorithm").serialize(),
             success: function (data) {
                 var algData = JSON.parse(data);
+                console.log(algData)
 
                 var alg_keys = Object.keys(algData);
 
@@ -84,6 +85,7 @@ $(function () {
                 console.log(params)
 
                 var param_keys = Object.keys(params);
+                console.log(param_keys)
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
@@ -98,10 +100,8 @@ $(function () {
                 for (i = 0; i < param_keys.length; i++) {
                     $("#addParamsHere").append(
                         "<p>" +
-                            param_keys[i] +
-                            "  (" +
                             params[param_keys[i]] +
-                            '):  <input type="text" id="' +
+                            '<input type="text" id="' +
                             params[param_keys[i]] +
                             '" name="hyperp">' +
                             "</p><br/>"

@@ -8,3 +8,9 @@ INSERT INTO algv
 VALUES('Logistic Regression', true);
 
 INSERT INTO paramsv VALUES ('Logistic Regression', 'C', '{0, inf}');
+
+INSERT INTO algv
+(algv_algname, algv_params)
+VALUES('Fair PCA', true);
+
+INSERT INTO paramsv VALUES ('Fair PCA', 'd', '{0, inf}');

@@ -11,9 +11,11 @@ from flask import (
 )
 from utilities.dbUtils import config, connect, connect_insert
 from utilities.make_plots import make_plots
-from algorithms.log_reg import testLR
+from sklearn.linear_model import LogisticRegression
 import json
 import numpy as np
+from algorithms.handlers import ResultsHandler, DataHandler
+from algorithms.fair_pca import FairPCA
 
 app = Flask(__name__)
 
@@ -25,6 +27,7 @@ features = None
 
 data_names = connect("SELECT dataset_name, dataset_shortname FROM datasets;")
 alg_names = connect("SELECT algv_algname FROM algv;")
+webtext = connect("SELECT * FROM webtext;")
 
 
 @app.route("/")
@@ -90,6 +93,7 @@ def algSelect():
     global algorithm
     algorithm = request.form["algorithm"]
 
+    # TODO: Fix this for multiple hyperp's (probably needs to be done pre-0.5)
     isParams = connect(
         "SELECT algv_params FROM algv WHERE algv_algname = '" + algorithm + "';"
     )[0][0]
@@ -103,7 +107,7 @@ def algSelect():
         print('PARAMS')
         print(json.dumps(params))
 
-    return f'{{"{algorithm}": {json.dumps(params)}}}'
+    return f'{{"{algorithm}": [{json.dumps(params)}]}}'
 
 @app.route("/runAlg", methods=["GET", "POST", "PUT"])
 def runAlg():
@@ -151,7 +155,6 @@ def runAlg():
     algParams_json = json.dumps(algParams)
 
     sel_str = ''
-
     for key, val in algParams.items():
         sel_str += f' and prunhv_name = \'{key}\' and prunhv_value = {val}'
 
@@ -176,12 +179,17 @@ def runAlg():
         ret_val["U_down"] = results["U_down"]
         ret_val["P_up"] = results["P_up"]
         ret_val["P_down"] = results["P_down"]
+
         print("I FOUND IT, NO RUNNING THE MODEL NECESSARY")
     else:
-        # Generalize this
-        results = testLR(
-            dataPath, idxsPath, features, algParams, sens_idx - 1, 1, 2
-        )
+        dh = DataHandler(dataPath, idxsPath)
+        if algorithm == 'Logistic Regression': 
+            results = ResultsHandler(LogisticRegression(max_iter = 1000, **algParams), dh, sens_idx - 1, (1, 2), features).get_results()
+        elif algorithm == 'Fair PCA':
+            results = ResultsHandler(LogisticRegression(max_iter = 1000, **algParams), dh, sens_idx - 1, (1, 2), features, transformer = FairPCA(sens_idx - 1, 1, 2, len(feats) / 2)).get_results()
+        else:
+            raise Exception('You cannot run a learning algorithm not in the dropdown menu. How/why did you even do this')
+
         ret_val["acc"] = results[0]
         ret_val["sd"] = results[1]
         ret_val["U_up"] = results[2]
