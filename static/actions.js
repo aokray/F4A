@@ -115,7 +115,10 @@ $(function () {
 // Probably bad design, ANY submit will go THROUGH THIS FUNCTION.
 $(document).on("submit", function (e) {
     var hypers = {};
-    hypers[$("input[name=hyperp]")[0].id] = $("input[name=hyperp]").val();
+    for (obj of $("input[name=hyperp]")){
+        hypers[obj.id] = obj.value;
+    }
+
     e.preventDefault();
     var feat_idxs = [];
 

@@ -93,7 +93,6 @@ def algSelect():
     global algorithm
     algorithm = request.form["algorithm"]
 
-    # TODO: Fix this for multiple hyperp's (probably needs to be done pre-0.5)
     isParams = connect(
         "SELECT algv_params FROM algv WHERE algv_algname = '" + algorithm + "';"
     )[0][0]
@@ -103,11 +102,9 @@ def algSelect():
             SELECT paramsv_param FROM paramsv
             WHERE paramsv_alg = '{algorithm}';
         """
-        params = connect(params_sql)[0][0]
-        print('PARAMS')
-        print(json.dumps(params))
+        params = connect(params_sql)
 
-    return f'{{"{algorithm}": [{json.dumps(params)}]}}'
+    return f'{{"{algorithm}": {json.dumps(params)}}}'
 
 @app.route("/runAlg", methods=["GET", "POST", "PUT"])
 def runAlg():
@@ -127,7 +124,7 @@ def runAlg():
         algParams[key] = float(algParams[key])
 
     dat_info_query = f"""
-        SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
+        SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_upvals, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{dataShortName}';
     """
 
@@ -135,11 +132,12 @@ def runAlg():
     dataPath = dat_info[0]
     idxsPath = dat_info[1]
     sens_idx = dat_info[2]
-    dataset = dat_info[3]
-    sens_names = dat_info[4]
+    sens_vals = dat_info[3]
+    dataset = dat_info[4]
+    sens_names = dat_info[5]
     sens_names = [x.strip() for x in sens_names.split(",")]
-    label_desc = dat_info[5]
-    res_str = dat_info[6]
+    label_desc = dat_info[6]
+    res_str = dat_info[7]
 
     # TODO: Raise an error here if no features are chosen, on the off-chance that the front-end validation fails
     if features == None:
@@ -154,20 +152,31 @@ def runAlg():
 
     algParams_json = json.dumps(algParams)
 
+    # TODO: try to clean this up, but something like this is necessary as the project enters multiple hyperparameter territory
     sel_str = ''
+    counter = 0
     for key, val in algParams.items():
-        sel_str += f' and prunhv_name = \'{key}\' and prunhv_value = {val}'
+        if counter == 0:
+            sel_str += f' and hv.prunhv_name = \'{key}\' and hv.prunhv_value = {val}'
+        else:
+            sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})'
+
+        counter += 1
 
     cE_str = f"""
         select prun_results from prun
-        INNER JOIN prunhv on prun_id = prunhv_id
+        INNER JOIN prunhv hv on prun_id = hv.prunhv_id
         where prun_alg = '{algorithm}'
         and prun_dataset = '{dataset}'
         and prun_feats = '{feats}'
         {sel_str};
     """
 
+    print(cE_str)
+
     checkExisting = connect(cE_str)
+
+    print(checkExisting)
 
     # TODO: Modularize this
     if checkExisting != [] and checkExisting is not None:
@@ -184,9 +193,10 @@ def runAlg():
     else:
         dh = DataHandler(dataPath, idxsPath)
         if algorithm == 'Logistic Regression': 
-            results = ResultsHandler(LogisticRegression(max_iter = 1000, **algParams), dh, sens_idx - 1, (1, 2), features).get_results()
+            results = ResultsHandler(LogisticRegression(max_iter = 1000, **algParams), dh, sens_idx - 1, (sens_vals[0], sens_vals[1]), features).get_results()
         elif algorithm == 'Fair PCA':
-            results = ResultsHandler(LogisticRegression(max_iter = 1000, **algParams), dh, sens_idx - 1, (1, 2), features, transformer = FairPCA(sens_idx - 1, 1, 2, len(feats) / 2)).get_results()
+            # TODO: Pending frontend algorithm redesign, this will have to do.
+            results = ResultsHandler(LogisticRegression(max_iter = 1000, C = algParams['C']), dh, sens_idx - 1, (sens_vals[0], sens_vals[1]), features, transformer = FairPCA(sens_idx - 1, 1, 2, d = int(algParams['d']))).get_results()
         else:
             raise Exception('You cannot run a learning algorithm not in the dropdown menu. How/why did you even do this')
 

@@ -3,16 +3,19 @@ CREATE TABLE datasets (
     dataset_name TEXT NOT NULL PRIMARY KEY,
     dataset_origin TEXT NOT NULL,
     dataset_sensidx INTEGER NOT NULL,
+    dataset_upvals INTEGER[] NOT NULL,
     dataset_preprocessing TEXT NOT NULL,
     dataset_path TEXT NOT NULL,
     dataset_labeldesc TEXT NOT NULL,
     dataset_featnames TEXT NOT NULL,
-    dataset_idxspath TEXT,
+    dataset_idxspath TEXT NOT NULL,
     dataset_shortname TEXT NOT NULL,
     dataset_sensnames TEXT NOT NULL,
     dataset_resultsstr TEXT NOT NULL,
     dataset_hdist REAL[] NOT NULL
 );
+
+COMMENT ON COLUMN datasets.dataset_upvals IS 'upvals should take the form of {unprotected_value, protected_value}, IN THAT ORDER!';
 
 -- The algorithm validation table
 CREATE TABLE algv (
@@ -52,7 +55,7 @@ ON prun (prun_alg, prun_dataset);
 -- Previous runs hyperparameter values table, stores information about hyperparameter settings for 
 -- a given run prunhv_id
 CREATE TABLE prunhv (
-    prunhv_id INTEGER NOT NULL UNIQUE,
+    prunhv_id INTEGER NOT NULL,
     prunhv_name TEXT NOT NULL,
     prunhv_value REAL NOT NULL,
     CONSTRAINT fk_id
