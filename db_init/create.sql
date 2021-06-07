@@ -20,7 +20,8 @@ COMMENT ON COLUMN datasets.dataset_upvals IS 'upvals should take the form of {un
 -- The algorithm validation table
 CREATE TABLE algv (
     algv_algname TEXT NOT NULL PRIMARY KEY,
-    algv_params BOOLEAN
+    algv_params BOOLEAN,
+    algv_type TEXT NOT NULL CHECK (algv_type in ('Transformer', 'Learning Method'))
 );
 
 -- The parameter validation table

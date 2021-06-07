@@ -114,10 +114,22 @@ $(function () {
 
 // Probably bad design, ANY submit will go THROUGH THIS FUNCTION.
 $(document).on("submit", function (e) {
-    var hypers = {};
+    // JSON to send to backend format: 
+    // returned = {
+    //     "features": {},
+    //     "lm_hyperparams": {},
+    //     "transformer_hyperparams": {}
+    // }
+    
+    var to_backend = {};
+    var lm_hyperparams = {};
+    var transformer_hyperparams = {};
+
     for (obj of $("input[name=hyperp]")){
-        hypers[obj.id] = obj.value;
+        lm_hyperparams[obj.id] = obj.value;
     }
+
+    to_backend['lm_hyperparams'] = lm_hyperparams;
 
     e.preventDefault();
     var feat_idxs = [];
@@ -126,17 +138,16 @@ $(document).on("submit", function (e) {
         feat_idxs.push(obj["feat_id"]);
     }
 
-    hypers["feat_idxs"] = feat_idxs;
+    to_backend["feat_idxs"] = feat_idxs;
     document.getElementById("results_div").style.display = 'none';
 
     $(this).find(':input[type=submit]').prop('disabled', true);
 
-    // TODO: Disable the button, """ezpz"""
     $.ajax({
         type: "POST",
         timeout: 0, // Important because server may be running model for AWHILE
         url: "/runAlg",
-        data: JSON.stringify(hypers),
+        data: JSON.stringify(to_backend),
         contentType: "application/json",
         dataType: "json",
         success: function (data) {
@@ -147,7 +158,6 @@ $(document).on("submit", function (e) {
             var res_str = data[0];
             console.log(data);
             console.log(res);
-
 
             // Make the results div appear
             document.getElementById("results_div").style.display = 'block';
