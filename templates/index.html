@@ -37,7 +37,8 @@
 
     <div class='container-fluid'>
         <div class='row'>
-            <div class='col-md-3'>
+            <div class='col-md-1'></div>
+            <div class='col-md-2'>
                 Select a data set to begin:
 
                 <br/>
@@ -59,7 +60,8 @@
         <hr>
 
         <div class='row'>
-            <div class='col-md-2'>
+            <div class='col-md-3'></div>
+            <div class='col-md-1'>
                 Select an algorithm to use:
                 <br/>
                 <form action='/algSelect' method='POST'>
@@ -71,16 +73,30 @@
                     </select>
                 </form>
             </div>
+            <div class='col-md-3'></div>
+            <div class='col-md-1'>
+                Optionally, select a transformer to use:
+                <br/>
+                <form action='/transformerSelect' method='POST'>
+                    <select id='transformer' name='transformer'>
+                        <option disabled selected value>-- Select a value --</option>
+                        {% for trans in transformer_names %}
+                            <option value="{{ trans[0] }}">{{ trans[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
         </div>
     </div>
 
 
-    <div class='text-center' id='submitButton'>
+    <div class='text-center' id='submitButton' style='padding-top: 2%;'>
         <form id='paramsInputs' name='paramsInputs' action='/runAlg' method='POST'>
             <p>Please note: Once submitted, the process <i>may</i> take some time to
                 complete. Please do not reload and resubmit until it's finished.</p>
 
-            <div id='addParamsHere'></div>
+            <div id='addLMParamsHere'></div>
+            <div id='addTParamsHere'></div>
 
             <button id='runModel' name='runModel' type='submit' class='btn btn-success'>Submit</button>
         </form>
@@ -115,6 +131,7 @@
         <hr>
     </div>
     
+    <div style='padding-top: 100px;'></div>
 
     <script src="{{ url_for('static', filename='actions.js') }}"></script>
 </body>

@@ -22,10 +22,12 @@ app = Flask(__name__)
 # Globals necessary here?
 dataShortName = None
 algorithm = None
+transformer = None
 features = None
 
 data_names = connect("SELECT dataset_name, dataset_shortname FROM datasets;")
-alg_names = connect("SELECT algv_algname FROM algv;")
+alg_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Learning Method';")
+trans_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Transformer';")
 webtext = connect("SELECT * FROM webtext;")
 
 
@@ -34,7 +36,7 @@ def index():
     connect("SELECT VERSION();")
 
     return render_template(
-        "index.html", dataset_names=data_names, algorithm_names=alg_names, file={}
+        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, file={}
     )
 
 
@@ -105,14 +107,35 @@ def algSelect():
 
     return f'{{"{algorithm}": {json.dumps(params)}}}'
 
+@app.route("/transformerSelect", methods=["GET", "POST", "PUT"])
+def transformerSelect():
+    global transformer
+
+    transformer = request.form["transformer"]
+
+    isParams = connect(
+        "SELECT algv_params FROM algv WHERE algv_algname = '" + transformer + "';"
+    )[0][0]
+
+    if isParams:
+        params_sql = f"""
+            SELECT paramsv_param FROM paramsv
+            WHERE paramsv_alg = '{transformer}';
+        """
+        params = connect(params_sql)
+
+    return f'{{"{transformer}": {json.dumps(params)}}}'
+
+
 @app.route("/runAlg", methods=["GET", "POST", "PUT"])
 def runAlg():
-    global dataShortName, algorithm, features
+    global dataShortName, algorithm, transformer, features
     ret_strs = []
     ret_val = {}
 
     data = request.get_json()
     lm_hyperparams = data['lm_hyperparams']
+    transformer_hyperparams = data['transformer_hyperparams']
 
     # Features aren't algorithm parameters, but it's easy to ship them to the backend this way for now
     # Delete them so we don't consume them as hyperp's
@@ -122,6 +145,9 @@ def runAlg():
     # Temporary measure - only allow real numbers to be hyperparameters, e.g. no changing loss function from L1 to L2
     for key, val in lm_hyperparams.items():
         lm_hyperparams[key] = float(lm_hyperparams[key])
+
+    for key, val in transformer_hyperparams.items():
+        transformer_hyperparams[key] = int(transformer_hyperparams[key])
 
     dat_info_query = f"""
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_upvals, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
@@ -163,6 +189,11 @@ def runAlg():
 
         counter += 1
 
+    for key, val in transformer_hyperparams.items():
+        sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})'
+        
+        counter += 1
+
     cE_str = f"""
         select prun_results from prun
         INNER JOIN prunhv hv on prun_id = hv.prunhv_id
@@ -192,14 +223,17 @@ def runAlg():
         print("I FOUND IT, NO RUNNING THE MODEL NECESSARY")
     else:
         dh = DataHandler(dataPath, idxsPath)
-        if algorithm == 'Logistic Regression': 
-            results = ResultsHandler(LogisticRegression(max_iter = 1000, **lm_hyperparams), dh, sens_idx - 1, (sens_vals[0], sens_vals[1]), features).get_results()
-        elif algorithm == 'Fair PCA':
-            # TODO: Pending frontend algorithm redesign, this will have to do.
-            results = ResultsHandler(LogisticRegression(max_iter = 1000, C = lm_hyperparams['C']), dh, sens_idx - 1, (sens_vals[0], sens_vals[1]), features, transformer = FairPCA(sens_idx - 1, 1, 2, d = int(lm_hyperparams['d']))).get_results()
-        else:
-            raise Exception('You cannot run a learning algorithm not in the dropdown menu. How/why did you even do this')
+        lm_string = algorithm.replace(' ', '')
 
+        # Set lm and transformer vars
+        lm = eval(lm_string + '(**lm_hyperparams)')
+        
+        if transformer is not None:
+            transformer_string = transformer.replace(' ', '')
+            t = eval(transformer_string + '(sens_idx-1, sens_vals[0], sens_vals[1], **transformer_hyperparams)')
+
+        results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t).get_results()
+       
         ret_val["acc"] = results[0]
         ret_val["sd"] = results[1]
         ret_val["U_up"] = results[2]

@@ -89,21 +89,65 @@ $(function () {
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
-                $("#addParamsHere")[0].innerHTML = "";
+                $("#addLMParamsHere")[0].innerHTML = "";
 
-                $("#addParamsHere").append(
+                $("#addLMParamsHere").append(
                     "<br/><p>Optional Hyperparameters for " +
                         $("#algorithm").val() +
                         " are:<br/>"
                 );
 
                 for (i = 0; i < param_keys.length; i++) {
-                    $("#addParamsHere").append(
+                    $("#addLMParamsHere").append(
                         "<p>" +
                             params[param_keys[i]] +
-                            '<input type="text" id="' +
+                            ' <input type="text" id="' +
                             params[param_keys[i]] +
-                            '" name="hyperp">' +
+                            '" name="lm_hyperp">' +
+                            "</p><br/>"
+                    );
+                }
+            },
+        });
+    });
+});
+
+$(function (){
+    $("#transformer").change(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/transformerSelect",
+            data: $("#transformer").serialize(),
+            success: function(data) {
+                var algData = JSON.parse(data);
+                console.log(algData)
+
+                var alg_keys = Object.keys(algData);
+
+                var params = algData[alg_keys[0]];
+                console.log(params)
+
+                var param_keys = Object.keys(params);
+                console.log(param_keys)
+
+                // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
+                //  before adding a new hyperparameter section
+                // $("#addParamsHere")[0].innerHTML = "";
+
+                $("#addTParamsHere").append(
+                    "<br/><p>Optional Hyperparameters for " +
+                        $("#algorithm").val() +
+                        " are:<br/>"
+                );
+
+                for (i = 0; i < param_keys.length; i++) {
+                    $("#addTParamsHere").append(
+                        "<p>" +
+                            params[param_keys[i]] +
+                            ' <input type="text" id="' +
+                            params[param_keys[i]] +
+                            '" name="t_hyperp">' +
                             "</p><br/>"
                     );
                 }
@@ -125,11 +169,17 @@ $(document).on("submit", function (e) {
     var lm_hyperparams = {};
     var transformer_hyperparams = {};
 
-    for (obj of $("input[name=hyperp]")){
+    for (obj of $("input[name=lm_hyperp]")){
         lm_hyperparams[obj.id] = obj.value;
     }
 
     to_backend['lm_hyperparams'] = lm_hyperparams;
+
+    for (obj of $("input[name=t_hyperp]")){
+        transformer_hyperparams[obj.id] = obj.value;
+    }
+
+    to_backend['transformer_hyperparams'] = transformer_hyperparams;
 
     e.preventDefault();
     var feat_idxs = [];
