@@ -115,9 +115,6 @@ def transformerSelect():
 
     transformer = request.form["transformer"]
 
-    print('Transformer! --------------------------------')
-    print(transformer)
-
     if transformer == 'None':
         transformer = None
         return f'{{"{transformer}": {{}}}}'
@@ -192,31 +189,31 @@ def runAlg():
     counter = 0
     for key, val in lm_hyperparams.items():
         if counter == 0:
-            sel_str += f' and hv.prunhv_name = \'{key}\' and hv.prunhv_value = {val}'
+            sel_str += f' and hv.prunhv_name = \'{key}\' and hv.prunhv_value = {val}\n'
         else:
-            sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})'
+            sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})\n'
 
         counter += 1
 
     for key, val in transformer_hyperparams.items():
-        sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})'
+        sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})\n'
         
         counter += 1
 
     cE_str = f"""
-        select prun_results from prun
-        INNER JOIN prunhv hv on prun_id = hv.prunhv_id
-        where prun_alg = '{algorithm}'
-        and prun_dataset = '{dataset}'
-        and prun_feats = '{feats}'
-        {sel_str};
+    select prun_results from prun
+    INNER JOIN prunhv hv on prun_id = hv.prunhv_id
+    where prun_alg = '{algorithm}'
+    and prun_dataset = '{dataset}'
+    and prun_feats = '{feats}'
+    {sel_str};
     """
 
     print(cE_str)
 
     checkExisting = connect(cE_str)
 
-    # TODO: Modularize this
+    # TODO: Modularize this (further?)
     if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
         
@@ -244,6 +241,8 @@ def runAlg():
         try:
             results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t).get_results()
         except Exception as e:
+            # Simply returns a 500 error and spits out the exception the learning method returns - not great
+            # TODO: make the error codes MUCH better (DB table maybe?)
             abort(500, e)
 
         ret_val["acc"] = results[0]
@@ -255,7 +254,7 @@ def runAlg():
 
         get_id = "SELECT MAX(prun_id) from prun;";
         largest_id = connect(get_id)[0][0]
-        if largest_id == [] or largest_id == None:
+        if largest_id == [] or largest_id is None:
             largest_id = 0
         else:
             largest_id = largest_id + 1

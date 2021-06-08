@@ -23,7 +23,7 @@ class DataHandler:
         return self._data_path
 
     @data_path.setter
-    def data_path(self, value):
+    def data_path(self, value: str):
         self._data_path = value
         self.dataset = np.loadtxt(value, delimiter = self.delimiter)
 
