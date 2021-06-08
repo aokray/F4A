@@ -77,15 +77,12 @@ $(function () {
             data: $("#algorithm").serialize(),
             success: function (data) {
                 var algData = JSON.parse(data);
-                console.log(algData)
 
                 var alg_keys = Object.keys(algData);
 
                 var params = algData[alg_keys[0]];
-                console.log(params)
 
                 var param_keys = Object.keys(params);
-                console.log(param_keys)
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
@@ -121,26 +118,28 @@ $(function (){
             data: $("#transformer").serialize(),
             success: function(data) {
                 var algData = JSON.parse(data);
-                console.log(algData)
+
+                console.log('ALGDATA');
+                console.log(algData);
 
                 var alg_keys = Object.keys(algData);
 
                 var params = algData[alg_keys[0]];
-                console.log(params)
 
                 var param_keys = Object.keys(params);
-                console.log(param_keys)
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
-                // $("#addParamsHere")[0].innerHTML = "";
+                $("#addTParamsHere")[0].innerHTML = "";
 
-                $("#addTParamsHere").append(
-                    "<br/><p>Optional Hyperparameters for " +
-                        $("#algorithm").val() +
-                        " are:<br/>"
-                );
-
+                if (!jQuery.isEmptyObject(params)){
+                    $("#addTParamsHere").append(
+                        "<br/><p>Optional Hyperparameters for " +
+                            $("#transformer").val() +
+                            " are:<br/>"
+                    );
+                }
+                
                 for (i = 0; i < param_keys.length; i++) {
                     $("#addTParamsHere").append(
                         "<p>" +
@@ -206,8 +205,6 @@ $(document).on("submit", function (e) {
 
             var res = data[1];
             var res_str = data[0];
-            console.log(data);
-            console.log(res);
 
             // Make the results div appear
             document.getElementById("results_div").style.display = 'block';
@@ -218,6 +215,12 @@ $(document).on("submit", function (e) {
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
         },
+        error: function(request, status, error) {
+            $("#runModel").prop('disabled', false);
+            document.getElementById("loading").style.display = 'none';
+            console.log(request);
+            alert(new DOMParser().parseFromString(request.responseText, "text/html").documentElement.lastChild.lastElementChild.textContent);
+        }
     });
     document.getElementById("loading").style.display = 'block';
 });

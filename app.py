@@ -8,7 +8,9 @@ from flask import (
     send_file,
     jsonify,
     session,
+    abort,
 )
+import werkzeug.exceptions as ex
 from utilities.dbUtils import config, connect, connect_insert
 from utilities.make_plots import make_plots
 from sklearn.linear_model import LogisticRegression
@@ -113,6 +115,13 @@ def transformerSelect():
 
     transformer = request.form["transformer"]
 
+    print('Transformer! --------------------------------')
+    print(transformer)
+
+    if transformer == 'None':
+        transformer = None
+        return f'{{"{transformer}": {{}}}}'
+
     isParams = connect(
         "SELECT algv_params FROM algv WHERE algv_algname = '" + transformer + "';"
     )[0][0]
@@ -207,8 +216,6 @@ def runAlg():
 
     checkExisting = connect(cE_str)
 
-    print(checkExisting)
-
     # TODO: Modularize this
     if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
@@ -231,9 +238,14 @@ def runAlg():
         if transformer is not None:
             transformer_string = transformer.replace(' ', '')
             t = eval(transformer_string + '(sens_idx-1, sens_vals[0], sens_vals[1], **transformer_hyperparams)')
+        else:
+            t = None
 
-        results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t).get_results()
-       
+        try:
+            results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t).get_results()
+        except Exception as e:
+            abort(500, e)
+
         ret_val["acc"] = results[0]
         ret_val["sd"] = results[1]
         ret_val["U_up"] = results[2]

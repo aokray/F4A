@@ -79,7 +79,8 @@
                 <br/>
                 <form action='/transformerSelect' method='POST'>
                     <select id='transformer' name='transformer'>
-                        <option disabled selected value>-- Select a value --</option>
+                        <option disabled value>-- Select a value --</option>
+                        <option selected>None</option>
                         {% for trans in transformer_names %}
                             <option value="{{ trans[0] }}">{{ trans[0] }}</option>
                         {% endfor %}
