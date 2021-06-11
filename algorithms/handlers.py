@@ -1,5 +1,4 @@
 from typing import Callable, Tuple, List, Type
-import inspect
 from nptyping import NDArray
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -65,34 +64,17 @@ class ResultsHandler:
         self.transformer = transformer
 
     def get_results(self):
-        # Scale
-        # if self.scaler is not None:
-        #     self.data.apply_data_function(self.scaler)
-
-        # Transform
-        # if self.transformer is not None:
-        #     self.data.apply_data_function(self.transformer)
-
-        # if not inspect.isclass(self.predictor):
-        #     raise ResultsHandlerException(f'The given predictor is not a class. It must be a class with fit and predict functions.')
-
         if not hasattr(self.predictor, 'predict'):
             raise ResultsHandlerException(f'The given predictor {self.predictor.__class__.__name__} does not have a predict function.')
 
         if not hasattr(self.predictor, 'fit'):
             raise ResultsHandlerException(f'The given predictor {self.predictor.__class__.__name__} does not have a fit function.')
 
-        # if not inspect.isclass(self.scaler):
-        #     raise ResultsHandlerException(f'The given scaler is not a class. It must be a class with fit and transform functions.')
-
         if not hasattr(self.scaler, 'fit'):
             raise ResultsHandlerException(f'The given scaler {self.scaler.__class__.__name__} does not have a fit function.')
 
         if not hasattr(self.scaler, 'transform'):
             raise ResultsHandlerException(f'The given scaler {self.scaler.__class__.__name__} does not have a transform function.')
-
-        # if not inspect.isclass(self.transformer) or self.transformer is None:
-        #     raise ResultsHandlerException(f'The given transformer is not a class. It must be a class with fit and transform functions.')
 
         if not hasattr(self.transformer, 'fit') and self.transformer is not None:
             raise ResultsHandlerException(f'The given transformer {self.transformer.__class__.__name__} does not have a fit function.')
@@ -114,9 +96,11 @@ class ResultsHandler:
 
         sample = self.data.dataset[:,0:-1]
         all_feat_idxs = np.arange(sample.shape[1])
-        # sample[:,np.setdiff1d(all_feat_idxs, self.sens_idx)] = scaler.fit_transform(sample[:,np.setdiff1d(all_feat_idxs, sens_idx)])
         label = self.data.dataset[:,-1]
         
+        print('-------------------------')
+        print(self.predictor.max_iter)
+
         for idx_row in self.data.idxs:
             idx_row_test = np.setdiff1d(all_idxs, idx_row)
             sample_train = sample[idx_row]

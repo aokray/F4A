@@ -128,7 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-
 # Photos and data
 .csv
 .png
@@ -138,3 +137,6 @@ tabulator-master/
 
 # Visual Studio dirs/files
 .vscode/
+
+# Make sure min.js stuff isn't included (for now, just Plotly)
+static/*.min.js

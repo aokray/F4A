@@ -18,6 +18,7 @@ import json
 import numpy as np
 from algorithms.handlers import ResultsHandler, DataHandler
 from algorithms.fair_pca import FairPCA
+from algorithms.algorithm_defaults import alg_defaults
 
 app = Flask(__name__)
 
@@ -217,8 +218,8 @@ def runAlg():
     if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
         
-        ret_val["acc"] = results["acc"]
-        ret_val["sd"] = results["sd"]
+        ret_val["acc"] = 100 * round(results["acc"], 5)
+        ret_val["sd"] = round(results["sd"], 3)
         ret_val["U_up"] = results["U_up"]
         ret_val["U_down"] = results["U_down"]
         ret_val["P_up"] = results["P_up"]
@@ -230,10 +231,17 @@ def runAlg():
         lm_string = algorithm.replace(' ', '')
 
         # Set lm and transformer vars
+        if lm_string in alg_defaults:
+            lm_hyperparams.update(alg_defaults[lm_string])
+
         lm = eval(lm_string + '(**lm_hyperparams)')
         
         if transformer is not None:
             transformer_string = transformer.replace(' ', '')
+            
+            if transformer_string in alg_defaults:
+                transformer_hyperparams.update(alg_defaults[transformer_string])
+
             t = eval(transformer_string + '(sens_idx-1, sens_vals[0], sens_vals[1], **transformer_hyperparams)')
         else:
             t = None
@@ -245,8 +253,8 @@ def runAlg():
             # TODO: make the error codes MUCH better (DB table maybe?)
             abort(500, e)
 
-        ret_val["acc"] = results[0]
-        ret_val["sd"] = results[1]
+        ret_val["acc"] = 100 * round(results[0], 5)
+        ret_val["sd"] = round(results[1], 3)
         ret_val["U_up"] = results[2]
         ret_val["U_down"] = results[3]
         ret_val["P_up"] = results[4]
@@ -271,7 +279,19 @@ def runAlg():
             COMMIT;
         """
 
+        if lm_string in alg_defaults:
+            for key, val in alg_defaults[lm_string].items():
+                del lm_hyperparams[key]
+
+        if transformer is not None:
+            if transformer_string in alg_defaults:
+                for key, val in alg_defaults[transformer_string].items():
+                    del transformer_hyperparams[key]
+
         args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in lm_hyperparams.items())
+
+        if transformer is not None:
+            args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
 
         ins_sql2 = f"""
             INSERT INTO prunhv (prunhv_id, prunhv_name, prunhv_value) VALUES

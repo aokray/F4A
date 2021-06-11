@@ -46,6 +46,43 @@ function startUp() {
     showSubmitButton();
 }
 
+function makePlot(res) {
+    u_up = res['U_up'];
+    u_down = res['U_down'];
+    p_up = res['P_up'];
+    p_down = res['P_down'];
+
+    var u_tot = u_up + u_down;
+    var p_tot = p_up + p_down;
+
+    var up_tot = u_up + p_up;
+    var down_tot = u_down + p_down;
+
+    plotLoc = document.getElementById('addPlotHere');
+
+    var data1 = {
+            x: ['Men', 'Women'],
+            y: [u_up / u_tot, p_up / p_tot],
+            name: 'Predicted Default',
+            type: 'bar'
+    };
+
+    var data2 = {
+            x: ['Men', 'Women'],
+            y: [u_down / u_down, p_down / p_down],
+            name: 'Predicted No Default',
+            type: 'bar'
+    };
+
+    var data = [data1, data2];
+    var layout = {
+        barmode: 'group',
+        title: 'Percent of Each Group Predicted as Defaulting/Not Defaulting'
+    };
+
+    Plotly.newPlot(plotLoc, data, layout);
+}
+
 $(function () {
     $("#dataset").change(function (e) {
         showSubmitButton();
@@ -205,15 +242,20 @@ $(document).on("submit", function (e) {
 
             var res = data[1];
             var res_str = data[0];
+            
+            console.log(res);
+            console.log(res_str);
 
             // Make the results div appear
             document.getElementById("results_div").style.display = 'block';
-            $("#accuracy").text("Accuracy: " + res["acc"]);
-            $("#sd").text("SD: " + res["sd"]);
+            $("#accuracy").text("Accuracy: " + res["acc"] + "%");
+            $("#sd").text("Statistical Disparity: " + res["sd"]);
             $("#p_up").text(res_str[0]);
             $("#p_down").text(res_str[1]);
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
+
+            makePlot(res);
         },
         error: function(request, status, error) {
             $("#runModel").prop('disabled', false);
