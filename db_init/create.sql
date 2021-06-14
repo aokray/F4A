@@ -40,18 +40,22 @@ CREATE TABLE webtext (
 -- Previoues runs table, records relevant info about results and settings of previous runs of a given
 -- ML model with features "prun_feats" and hyperparameters described in the prunhv table
 CREATE TABLE prun (
-    prun_alg TEXT NOT NULL,
+    prun_lm_alg TEXT NOT NULL,
+    prun_t_alg TEXT,
     prun_dataset TEXT NOT NULL,
     prun_id INTEGER NOT NULL UNIQUE,
     prun_results JSON NOT NULL,
     prun_feats INTEGER[] NOT NULL,
-    CONSTRAINT fk_algname
-        FOREIGN KEY (prun_alg)
-            REFERENCES algv (algv_algname)
+    CONSTRAINT fk_lm_algname
+        FOREIGN KEY (prun_lm_alg)
+            REFERENCES algv (algv_algname),
+    CONSTRAINT fk_t_algname
+        FOREIGN KEY (prun_t_alg)
+            REFERENCES algv (algv_algname) 
 );
 
 CREATE INDEX prun_alg_data
-ON prun (prun_alg, prun_dataset);
+ON prun (prun_lm_alg, prun_t_alg, prun_dataset);
 
 -- Previous runs hyperparameter values table, stores information about hyperparameter settings for 
 -- a given run prunhv_id

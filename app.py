@@ -30,7 +30,7 @@ features = None
 
 data_names = connect("SELECT dataset_name, dataset_shortname FROM datasets;")
 alg_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Learning Method';")
-trans_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Transformer';")
+trans_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Transformer' EXCEPT (SELECT 'None');")
 webtext = connect("SELECT * FROM webtext;")
 
 
@@ -204,13 +204,12 @@ def runAlg():
     cE_str = f"""
     select prun_results from prun
     INNER JOIN prunhv hv on prun_id = hv.prunhv_id
-    where prun_alg = '{algorithm}'
+    where prun_lm_alg = '{algorithm}'
+    and prun_t_alg = '{transformer}'
     and prun_dataset = '{dataset}'
     and prun_feats = '{feats}'
     {sel_str};
     """
-
-    print(cE_str)
 
     checkExisting = connect(cE_str)
 
@@ -218,8 +217,8 @@ def runAlg():
     if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
         
-        ret_val["acc"] = 100 * round(results["acc"], 5)
-        ret_val["sd"] = round(results["sd"], 3)
+        ret_val["acc"] = results["acc"]
+        ret_val["sd"] = results["sd"]
         ret_val["U_up"] = results["U_up"]
         ret_val["U_down"] = results["U_down"]
         ret_val["P_up"] = results["P_up"]
@@ -268,9 +267,10 @@ def runAlg():
             largest_id = largest_id + 1
         
         ins_sql = f"""
-            INSERT INTO prun (prun_alg, prun_dataset, prun_id, prun_results, prun_feats) VALUES
+            INSERT INTO prun (prun_lm_alg, prun_t_alg, prun_dataset, prun_id, prun_results, prun_feats) VALUES
                 (
                     '{algorithm}',
+                    '{transformer}',
                     '{dataset}',
                     '{largest_id}',
                     '{str(json.dumps(ret_val))}',
@@ -291,7 +291,8 @@ def runAlg():
         args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in lm_hyperparams.items())
 
         if transformer is not None:
-            args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
+            args_str += ',\n'
+            args_str += ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
 
         ins_sql2 = f"""
             INSERT INTO prunhv (prunhv_id, prunhv_name, prunhv_value) VALUES
