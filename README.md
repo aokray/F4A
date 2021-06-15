@@ -24,7 +24,7 @@ A website to help explain fair machine learning (video demonstration incoming).
 Ensure you have Python 3.5 or greater installed
 - Recommended: Install Anaconda, it includes almost all the packages necessary for F4A to run.
 - Optional between step, set up a virtual environment
-- Install Flask, version ~1.1.2 (versions newer or older probably work fine)
+- pip install Flask, version ~1.1.2 (versions newer or older probably work fine)
 
 Download and install Postgres 13
 - Set up your username and password
