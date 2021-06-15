@@ -23,6 +23,8 @@ A website to help explain fair machine learning (video demonstration incoming).
 
 Ensure you have Python 3.5 or greater installed
 - Recommended: Install Anaconda, it includes almost all the packages necessary for F4A to run.
+- Optional between step, set up a virtual environment
+- Install Flask, version ~1.1.2 (versions newer or older probably work fine)
 
 Download and install Postgres 13
 - Set up your username and password
@@ -35,11 +37,14 @@ Ensure that your Python 3.5+ install is being used (whether it be globally via P
 
 1.) Clone this repository, or download the code into a single folder.
 
-2.) Download and unzip [Tabulator](http://tabulator.info/) v4.9 (older/newer versions may work, but 4.9 certainly works) into the static/ folder.
+2.) Download necessary packages for frontend and put them into the "static/" folder.
+ - [Tabulator](http://tabulator.info/) v4.9 (older/newer versions may work, but 4.9 certainly works)
+ - [Tooltipster](https://github.com/calebjacob/tooltipster) master branch
+
 
 3.) Modify the database.ini file to match your database's credentials
 
-4.) Download data (suggested/see for a template of data format: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder. 
+4.) Download data (suggested/see for a template of data format: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder (currently coded in: Credit Default dataset). 
 - Each dataset requires:
     - 1.) The dataset itself (as a CSV file for now)
     - 2.) *n* rows of training index sets, where the number of columns is the number of instances in the training set and each entry is the index of a training sample.

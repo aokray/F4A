@@ -3,21 +3,44 @@
 <html>
 <head>
     <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>F4A</title>
+
     <!-- TODO: set a favicon for the site probably -->
     <!--link rel="icon" type="image/FILE_EXT" href=""/-->
-
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='f4a.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tooltipster-master/dist/css/tooltipster.bundle.min.css') }}" />
+    <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator.min.css') }}" rel="stylesheet">
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator.min.css')}}" rel="stylesheet">
     <script type="text/javascript" src="{{ url_for('static', filename='tabulator-master/dist/js/tabulator.min.js')}}"></script>
     <script src="{{ url_for('static', filename='plotly-2.0.0.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='tooltipster-master/dist/js/tooltipster.bundle.min.js') }}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    
+    <script>
+        // HAS to be here for some reason
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script>
 </head>
 
 <!-- NOTE: If needed, change function to a master JS function that calls showTable() and whatever else is needed -->
 <body onload="startUp()">
+    <!-- <span class='tooltipst' data-tooltip-content='#tooltip-content'>This span has a tool tip when you hover over it!</span>
+
+    <div class='tooltip_templates'>
+        <span id='tooltip_content'> <strong>CONTENT OF THE TOOLTIP</strong></span>
+    </div> -->
+
     <br/>
     <div class='container-fluid'>
         <div class='row'>
@@ -29,7 +52,7 @@
             </div>
             <!--div class='col-md-6 clearfix'></div-->
             <div class='col-md-2'>
-                <img style="float:right;" src="{{ url_for('static', filename='f4a_logo.png') }}" class="topright rounded-circle" >
+                <img style="float:right;" src="{{ url_for('static', filename='f4a_logo.png') }}" class="topright rounded-circle tooltipst">
             </div>
         </div>
     </div>
@@ -117,6 +140,22 @@
             </div>
             <div class='col-md-1'></div>
         </div>
+
+        <div class='row'>
+            <div class='col-md-1'></div>
+            <div class='col-md-10'>
+                <div class='text-center'>
+                    <p>
+                        <span class='bordered'>
+                            <span id='accuracy'></span>
+                            &nbsp; &nbsp;
+                            <span id='sd'></span>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class='col-md-1'></div>
+        </div>
  
         <div class='row'>
             <div class='col-md-1'></div>
@@ -132,16 +171,12 @@
             <div class='col-md-1'></div>
             <div class='col-md-10' id='results'>
                 <div class='text-center'>
-                    <p>
-                        <span id='accuracy'></span>
-                        &nbsp; &nbsp;
-                        <span id='sd'></span>
-                    </p>
+                    <h3 style='text-decoration: underline;'>Over 5 Runs, the average predictions are:</h3>
+                    <p><span id='p_up'></span></p>
+                    <p><span id='p_down'></span></p>
+                    <p><span id='u_up'></span></p>
+                    <p><span id='u_down'></span></p>
                 </div>
-                <p><span id='p_up'></span></p>
-                <p><span id='p_down'></span></p>
-                <p><span id='u_up'></span></p>
-                <p><span id='u_down'></span></p>
             </div>
             <div class='col-md-1'></div>
         </div>

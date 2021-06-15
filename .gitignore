@@ -134,6 +134,7 @@ dmypy.json
 
 # Libraries
 tabulator-master/
+tooltipster-master/
 
 # Visual Studio dirs/files
 .vscode/

@@ -42,7 +42,6 @@ function showSubmitButton() {
 
 // Master function to call all needed startup functions
 function startUp() {
-    //showTable();
     showSubmitButton();
 }
 
@@ -69,7 +68,7 @@ function makePlot(res) {
 
     var data2 = {
             x: ['Men', 'Women'],
-            y: [u_down / u_down, p_down / p_down],
+            y: [u_down / u_tot, p_down / p_tot],
             name: 'Predicted No Default',
             type: 'bar'
     };
@@ -133,14 +132,16 @@ $(function () {
 
                 for (i = 0; i < param_keys.length; i++) {
                     $("#addLMParamsHere").append(
-                        "<p>" +
+                        "<p><span class='lm_tooltip'>" +
                             params[param_keys[i]] +
-                            ' <input type="text" id="' +
+                            ' </span><input type="text" id="' +
                             params[param_keys[i]] +
                             '" name="lm_hyperp">' +
-                            "</p><br/>"
+                            " Range: $(0, \\infty)$</p><br/>"
                     );
                 }
+
+                MathJax.typeset();
             },
         });
     });
@@ -155,9 +156,6 @@ $(function (){
             data: $("#transformer").serialize(),
             success: function(data) {
                 var algData = JSON.parse(data);
-
-                console.log('ALGDATA');
-                console.log(algData);
 
                 var alg_keys = Object.keys(algData);
 
@@ -176,17 +174,19 @@ $(function (){
                             " are:<br/>"
                     );
                 }
-                
+
                 for (i = 0; i < param_keys.length; i++) {
                     $("#addTParamsHere").append(
-                        "<p>" +
+                        "<p><span class = 't_tooltip'>" +
                             params[param_keys[i]] +
-                            ' <input type="text" id="' +
+                            ' </span><input type="text" id="' +
                             params[param_keys[i]] +
                             '" name="t_hyperp">' +
-                            "</p><br/>"
+                            " Range: $(0, \\infty)$</p><br/>"
                     );
                 }
+
+                MathJax.typeset();
             },
         });
     });
@@ -242,9 +242,6 @@ $(document).on("submit", function (e) {
 
             var res = data[1];
             var res_str = data[0];
-            
-            console.log(res);
-            console.log(res_str);
 
             // Make the results div appear
             document.getElementById("results_div").style.display = 'block';
@@ -265,4 +262,29 @@ $(document).on("submit", function (e) {
         }
     });
     document.getElementById("loading").style.display = 'block';
+});
+
+$(document).ready(function () {
+    $('.tooltipst').tooltipster({
+        content: $('<div>REEEEEEEEEE</div>'),
+        theme: 'noir'
+    });
+});
+
+
+// This garbage is needed for tooltips on dynamically created content.
+$('body').on('mouseover mouseenter', '.lm_tooltip', function(){
+    $(this).tooltipster({
+        content: $('<div>' + 'Here is info about "C"' + '</div>')
+    });
+
+    $(this).tooltipster('show');
+});
+
+$('body').on('mouseover mouseenter', '.t_tooltip', function(){
+    $(this).tooltipster({
+        content: $('<div>' + 'Here is info about "d"' + '</div>')
+    });
+
+    $(this).tooltipster('show');
 });
