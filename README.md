@@ -7,6 +7,7 @@ A website to help explain fair machine learning (video demonstration incoming).
 
 # Table of Contents
 - [Setup](#setup-instructions) 
+- [Running the application](#running-the-application)
 - [Roadmap](#roadmap)
 
 
@@ -24,7 +25,10 @@ A website to help explain fair machine learning (video demonstration incoming).
 Ensure you have Python 3.5 or greater installed
 - Recommended: Install Anaconda, it includes almost all the packages necessary for F4A to run.
 - Optional between step, set up a virtual environment
-- pip install Flask, version ~1.1.2 (versions newer or older probably work fine)
+- pip install the following packages if needed
+    - Flask
+    - psycopg2
+    - nptyping
 
 Download and install Postgres 13
 - Set up your username and password
@@ -72,6 +76,9 @@ Ensure that your Python 3.5+ install is being used (whether it be globally via P
 5.) Set up the database
 - Open the db_init folder and run the "create.sql" file. This will make the necessary database tables.
 - Optional: Run the "load.sql" file to load in the Credit Default data set example
+
+# Running the application
+Currently only set up to run in development environments. See this page https://flask.palletsprojects.com/en/1.1.x/quickstart/ for basic instructions. All that's really needed is the command "flask run" in the cloned directory.
 
 # Roadmap
 Currently, the project is in a stable state and can be deployed locally.

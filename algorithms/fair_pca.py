@@ -1,5 +1,4 @@
 import numpy as np
-import cvxpy as cp
 from sklearn.decomposition import PCA
 from sklearn.base import TransformerMixin
 from nptyping import NDArray
