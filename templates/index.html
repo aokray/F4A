@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>F4A</title>
 
+    <!-- These two have to be loaded first, otherwise tabulator or modals will break -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
     <!-- TODO: set a favicon for the site probably -->
     <!--link rel="icon" type="image/FILE_EXT" href=""/-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -13,7 +17,6 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tooltipster-master/dist/css/tooltipster.bundle.min.css') }}" />
     <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator.min.css') }}" rel="stylesheet">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='tabulator-master/dist/js/tabulator.min.js')}}"></script>
     <script src="{{ url_for('static', filename='plotly-2.0.0.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='tooltipster-master/dist/js/tooltipster.bundle.min.js') }}"></script>
@@ -174,6 +177,26 @@
             <div class='col-md-1'></div>
         </div>
         <hr>
+    </div>
+
+    <div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="warningModalLabel">Results Warning</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <div class="modal-body">
+                Uh oh! Be wary of these results, your model has predicted no men or women will default on their payments at all!
+                Even if the accuracy is relatively high, this model will predict the vast majority of people will never default on their payments,
+                meaning it's equivalent to just assuming no one will ever default on their payments ever.
+            </div>
+                <div class="modal-footer">
+            </div>
+            </div>
+        </div>
     </div>
 
     <!-- At some point try to add technical details that are initially collapsed. Here though? Or is it better as a seperate page? -->

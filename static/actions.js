@@ -251,6 +251,10 @@ $(document).on("submit", function (e) {
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
 
+            if (res['U_up'] < 30 && res['P_up'] < 3) {
+                $("#warningModal").modal('show');
+            }
+
             makePlot(res);
         },
         error: function(request, status, error) {
@@ -265,8 +269,8 @@ $(document).on("submit", function (e) {
 
 $(document).ready(function () {
     $('.tooltipst').tooltipster({
-        content: $('<div>REEEEEEEEEE</div>'),
-        theme: 'noir'
+        content: $('<div>THIS IS THE LOGO!</div>'),
+        theme: 'tooltipster-punk'
     });
 });
 
