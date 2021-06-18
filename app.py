@@ -39,7 +39,7 @@ def index():
     connect("SELECT VERSION();")
 
     return render_template(
-        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, file={}
+        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names #, file={}
     )
 
 
@@ -63,9 +63,7 @@ def dataSelect():
     query = connect(feats_sql)[0]
     feats = query[0]
     hdists = query[1]
-    # sens = connect(data_info_sql)[0][1]
     feat_names = [x.strip() for x in feats.split(",")]
-    # sens_names = [x.strip() for x in sens.split(",")]
 
     # still need until admin page
     # all = connect('SELECT * FROM datasets WHERE dataset_name = \'' + dataset +'\'')[0]
@@ -145,17 +143,12 @@ def runAlg():
     transformer_hyperparams = data['transformer_hyperparams']
 
     # Features aren't algorithm parameters, but it's easy to ship them to the backend this way for now
-    # Delete them so we don't consume them as hyperp's
     features = data["feat_idxs"]
-    # del algParams["feat_idxs"]
 
-    # Temporary measure - only allow real numbers to be hyperparameters, e.g. no changing loss function from L1 to L2
-    for key, val in lm_hyperparams.items():
-        lm_hyperparams[key] = float(lm_hyperparams[key])
-
-    for key, val in transformer_hyperparams.items():
-        transformer_hyperparams[key] = int(transformer_hyperparams[key])
-
+    def_hyperp_query_str = """
+        SELECT paramsv_default FROM paramsv 
+        WHERE paramsv_param = '{}';
+    """
     dat_info_query = f"""
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_upvals, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{dataShortName}';
@@ -172,9 +165,29 @@ def runAlg():
     label_desc = dat_info[6]
     res_str = dat_info[7]
 
-    # TODO: Raise an error here if no features are chosen, on the off-chance that the front-end validation fails
-    if features == None:
-        feats = "{}"
+    dh = DataHandler(dataPath, idxsPath)
+    n = dh.dataset.shape[0]
+    p = dh.dataset.shape[1] - 1
+
+    # Temporary measure - only allow real numbers to be hyperparameters, e.g. no changing loss function from L1 to L2
+    # Use of eval() begins to unravel this measure
+    for key, val in lm_hyperparams.items():
+        if val is None or val == '':
+            def_val = connect(def_hyperp_query_str.format(key))[0][0]
+            lm_hyperparams[key] = eval(def_val)
+        else:
+            lm_hyperparams[key] = float(lm_hyperparams[key])
+
+    for key, val in transformer_hyperparams.items():
+        if val is None or val == '':
+            def_val = connect(def_hyperp_query_str.format(key))[0][0]
+            transformer_hyperparams[key] = eval(def_val)
+        else:
+            transformer_hyperparams[key] = int(transformer_hyperparams[key])
+
+    
+    if features is None or features == []:
+        abort(500, 'You must select at least one feature in the checklist above.')
     else:
         feats = "{"
         ready = [str(x) + "," for x in features]
@@ -183,7 +196,6 @@ def runAlg():
 
         feats = feats[:-1] + str("}") if len(feats) > 2 else feats + str("}")
 
-    # algParams_json = json.dumps(lm_params)
 
     # TODO: try to clean this up, but something like this is necessary as the project enters multiple hyperparameter territory
     sel_str = ''
@@ -217,8 +229,8 @@ def runAlg():
     if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
         
-        ret_val["acc"] = results["acc"]
-        ret_val["sd"] = results["sd"]
+        ret_val["acc"] = round(results["acc"], 3)
+        ret_val["sd"] = round(results["sd"], 3)
         ret_val["U_up"] = results["U_up"]
         ret_val["U_down"] = results["U_down"]
         ret_val["P_up"] = results["P_up"]
@@ -226,7 +238,6 @@ def runAlg():
 
         print("I FOUND IT, NO RUNNING THE MODEL NECESSARY")
     else:
-        dh = DataHandler(dataPath, idxsPath)
         lm_string = algorithm.replace(' ', '')
 
         # Set lm and transformer vars
@@ -279,6 +290,8 @@ def runAlg():
             COMMIT;
         """
 
+        # Both this and the next if statement delete default arguments
+        # TODO: clean this up, it's so ugly
         if lm_string in alg_defaults:
             for key, val in alg_defaults[lm_string].items():
                 del lm_hyperparams[key]
@@ -303,7 +316,10 @@ def runAlg():
         connect_insert(ins_sql)
         connect_insert(ins_sql2)
 
+    # TODO: Clean up this putrid mess
     ks = list(ret_val.keys())
+    print('KS--------------------')
+    print(ks)
     for idx in range(len(ks) - 2):
         if idx < 2:
             ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[0].lower()))

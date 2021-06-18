@@ -1,3 +1,16 @@
+-- Order is important because of FK constraints and I'm too lazy to add CASCADE
+DROP TABLE IF EXISTS datasets;
+
+DROP TABLE IF EXISTS prunhv;
+
+DROP TABLE IF EXISTS prun;
+
+DROP TABLE IF EXISTS paramsv;
+
+DROP TABLE IF EXISTS algv;
+
+DROP TABLE IF EXISTS webtext;
+
 -- Stores all relevant information about datasets
 CREATE TABLE datasets (
     dataset_name TEXT NOT NULL PRIMARY KEY,
@@ -29,6 +42,7 @@ CREATE TABLE paramsv (
     paramsv_alg TEXT NOT NULL,
     paramsv_param TEXT NOT NULL, -- Not null, no alg. MUST be loaded in this table but any that is must have a hyperparameter associated
     paramsv_domain TEXT[], -- NUll allowable, some hyperp's are L1 vs L2 loss which is a learning method setting, NOT a numerical value
+    paramsv_default TEXT NOT NULL,    
     paramsv_desc TEXT
 );
 

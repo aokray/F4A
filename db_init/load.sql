@@ -7,15 +7,15 @@ INSERT INTO algv
 (algv_algname, algv_params, algv_type)
 VALUES('Logistic Regression', true, 'Learning Method');
 
-INSERT INTO paramsv VALUES ('Logistic Regression', 'C', '{0, inf}', 'C is a "regularizer", usually it is set between 0.01 and 10.');
+INSERT INTO paramsv VALUES ('Logistic Regression', 'C', '{0, inf}', '1', 'C is a "regularizer", usually it is set between 0.01 and 10.');
 
 INSERT INTO algv
 (algv_algname, algv_params, algv_type)
 VALUES('Fair PCA', true, 'Transformer');
 
--- Crappy temp workaround
+-- Crappy (hopefully) temp workaround
 INSERT INTO algv
 (algv_algname, algv_params, algv_type)
 VALUES('None', false, 'Transformer');
 
-INSERT INTO paramsv VALUES ('Fair PCA', 'd', '{0, inf}', 'd is the reduced number of features, must be less than the # you chose above!');
+INSERT INTO paramsv VALUES ('Fair PCA', 'd', '{0, inf}', 'int(p / 2)', 'd is the reduced number of features, must be less than the # you chose above!');

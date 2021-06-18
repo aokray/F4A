@@ -97,9 +97,6 @@ class ResultsHandler:
         sample = self.data.dataset[:,0:-1]
         all_feat_idxs = np.arange(sample.shape[1])
         label = self.data.dataset[:,-1]
-        
-        print('-------------------------')
-        print(self.predictor.max_iter)
 
         for idx_row in self.data.idxs:
             idx_row_test = np.setdiff1d(all_idxs, idx_row)

@@ -26,7 +26,6 @@ var table = new Tabulator("#dataVisualizationTable", {
     ],
 });
 
-
 function showSubmitButton() {
     var elem = document.getElementById("submitButton");
     var dataSelected = document.getElementById("dataset").value;
@@ -125,7 +124,7 @@ $(function () {
                 $("#addLMParamsHere")[0].innerHTML = "";
 
                 $("#addLMParamsHere").append(
-                    "<br/><p>Optional Hyperparameters for " +
+                    "<br/><p>Optional Hyperparameter(s) for " +
                         $("#algorithm").val() +
                         " are:<br/>"
                 );
@@ -169,7 +168,7 @@ $(function (){
 
                 if (!jQuery.isEmptyObject(params)){
                     $("#addTParamsHere").append(
-                        "<br/><p>Optional Hyperparameters for " +
+                        "<br/><p>Optional Hyperparameter(s) for " +
                             $("#transformer").val() +
                             " are:<br/>"
                     );

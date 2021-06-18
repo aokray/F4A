@@ -35,12 +35,6 @@
 
 <!-- NOTE: If needed, change function to a master JS function that calls showTable() and whatever else is needed -->
 <body onload="startUp()">
-    <!-- <span class='tooltipst' data-tooltip-content='#tooltip-content'>This span has a tool tip when you hover over it!</span>
-
-    <div class='tooltip_templates'>
-        <span id='tooltip_content'> <strong>CONTENT OF THE TOOLTIP</strong></span>
-    </div> -->
-
     <br/>
     <div class='container-fluid'>
         <div class='row'>
@@ -50,7 +44,6 @@
                    ENTER GOOD INTRO HERE
                 </div>
             </div>
-            <!--div class='col-md-6 clearfix'></div-->
             <div class='col-md-2'>
                 <img style="float:right;" src="{{ url_for('static', filename='f4a_logo.png') }}" class="topright rounded-circle tooltipst">
             </div>
@@ -182,7 +175,15 @@
         </div>
         <hr>
     </div>
+
+    <!-- At some point try to add technical details that are initially collapsed. Here though? Or is it better as a seperate page? -->
+    <hr id='aboveTechDetails' style='display:none;'>
+    <div id='techDetails' style='display:none;'> 
+
+    </div>
+
     
+    <!-- Added this so user can scroll to (more or less) center points of interest above -->
     <div style='padding-top: 100px;'></div>
 
     <script src="{{ url_for('static', filename='actions.js') }}"></script>
