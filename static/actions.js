@@ -1,3 +1,5 @@
+
+
 var table = new Tabulator("#dataVisualizationTable", {
     layout: "fitDataStretch",
     height: "600px",
@@ -13,13 +15,14 @@ var table = new Tabulator("#dataVisualizationTable", {
             },
         },
         { title: "Feature ID", field: "feat_id", visible: false},
-        { title: "Feature Name", field: "featname", sorter: "string" },
-        { title: "Distance", field: "metric", sorter: "number" },
+        { title: "Feature Name", field: "featname", sorter: "string", headerTooltip: "Click the checkboxes to use this feature in the model"},
+        { title: "Distance", field: "metric", sorter: "number", headerTooltip: "Hellinger Distance, 0 = Distributions are the same, 1 = Distributions are totally different" },
         {
             title: "Distribution",
             field: "dist",
             hozAlign: "center",
             headerSort: false,
+            headerTooltip: "These images show how the values of one subpopulation relates to another subpopulation",
             formatter: "image",
             formatterParams: { height: "250px", width: "250px", urlPrefix: "static/", urlSuffix: ".png" },
         },
@@ -43,6 +46,7 @@ function showSubmitButton() {
 function startUp() {
     showSubmitButton();
 }
+
 
 function makePlot(res) {
     u_up = res['U_up'];
@@ -108,16 +112,25 @@ $(function () {
         e.preventDefault();
         $.ajax({
             type: "POST",
-            url: "/algSelect",
+            url: "/algSelect?alg=" + document.getElementById('algorithm').value,
             data: $("#algorithm").serialize(),
             success: function (data) {
                 var algData = JSON.parse(data);
 
-                var alg_keys = Object.keys(algData);
+                var alg = Object.keys(algData);
 
-                var params = algData[alg_keys[0]];
+                var params_data = algData[alg];
 
-                var param_keys = Object.keys(params);
+                var param = params_data['param'];
+
+                // Actually an array
+                var domain = params_data['domain'];
+                var desc = params_data['desc'];
+
+                // Check if the second command is the latex command inf
+                if (domain[2] == 'inf'){
+                    domain[2] = '\\' + domain[2];
+                }
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
@@ -129,14 +142,19 @@ $(function () {
                         " are:<br/>"
                 );
 
-                for (i = 0; i < param_keys.length; i++) {
+                // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
+                for (i = 0; i < 1; i++) {
                     $("#addLMParamsHere").append(
                         "<p><span class='lm_tooltip'>" +
-                            params[param_keys[i]] +
+                            param +
                             ' </span><input type="text" id="' +
-                            params[param_keys[i]] +
+                            param +
                             '" name="lm_hyperp">' +
-                            " Range: $(0, \\infty)$</p><br/>"
+                            " Range: $(" +
+                            domain[0] +
+                            ',' +
+                            domain[1] +
+                            ")$</p><br/>"
                     );
                 }
 
@@ -151,37 +169,54 @@ $(function (){
         e.preventDefault();
         $.ajax({
             type: "POST",
-            url: "/transformerSelect",
+            url: "/algSelect?alg=" + document.getElementById('transformer').value,
             data: $("#transformer").serialize(),
             success: function(data) {
                 var algData = JSON.parse(data);
 
-                var alg_keys = Object.keys(algData);
+                var alg = Object.keys(algData);
 
-                var params = algData[alg_keys[0]];
+                if (alg == 'None'){
+                    $("#addTParamsHere")[0].innerHTML = "";
+                    return;
+                }
 
-                var param_keys = Object.keys(params);
+                var params_data = algData[alg];
+
+                var param = params_data['param'];
+
+                // Actually an array
+                var domain = params_data['domain'];
+                var desc = params_data['desc'];
+
+                // Check if the second command is the latex command inf
+                if (domain[2] == 'inf'){
+                    domain[2] = '\\' + domain[2];
+                }
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
                 $("#addTParamsHere")[0].innerHTML = "";
 
-                if (!jQuery.isEmptyObject(params)){
-                    $("#addTParamsHere").append(
-                        "<br/><p>Optional Hyperparameter(s) for " +
-                            $("#transformer").val() +
-                            " are:<br/>"
-                    );
-                }
+                $("#addTParamsHere").append(
+                    "<br/><p>Optional Hyperparameter(s) for " +
+                        $("#transformer").val() +
+                        " are:<br/>"
+                );
 
-                for (i = 0; i < param_keys.length; i++) {
+                // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
+                for (i = 0; i < 1; i++) {
                     $("#addTParamsHere").append(
-                        "<p><span class = 't_tooltip'>" +
-                            params[param_keys[i]] +
+                        "<p><span class='lm_tooltip'>" +
+                            param +
                             ' </span><input type="text" id="' +
-                            params[param_keys[i]] +
+                            param +
                             '" name="t_hyperp">' +
-                            " Range: $(0, \\infty)$</p><br/>"
+                            " Range: $(" +
+                            domain[0] +
+                            ',' +
+                            domain[1] +
+                            ")$</p><br/>"
                     );
                 }
 
@@ -251,7 +286,7 @@ $(document).on("submit", function (e) {
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
 
-            if (res['U_up'] < 30 && res['P_up'] < 3) {
+            if (res['U_up'] == 0 && res['P_up'] == 0) {
                 $("#warningModal").modal('show');
             }
 
@@ -270,6 +305,7 @@ $(document).on("submit", function (e) {
 $(document).ready(function () {
     $('.tooltipst').tooltipster({
         content: $('<div>THIS IS THE LOGO!</div>'),
+        // Doesn't work :( 
         theme: 'tooltipster-punk'
     });
 });

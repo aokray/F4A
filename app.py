@@ -93,7 +93,12 @@ def dataSelect():
 @app.route("/algSelect", methods=["GET", "POST", "PUT"])
 def algSelect():
     global algorithm
-    algorithm = request.form["algorithm"]
+    # algorithm = request.form["algorithm"]
+    algorithm = request.args.get('alg')
+
+    if algorithm == 'None':
+        algorithm = None
+        return f'{{"{algorithm}": {{}}}}'
 
     isParams = connect(
         "SELECT algv_params FROM algv WHERE algv_algname = '" + algorithm + "';"
@@ -101,36 +106,17 @@ def algSelect():
 
     if isParams:
         params_sql = f"""
-            SELECT paramsv_param FROM paramsv
+            SELECT paramsv_param, paramsv_domain, paramsv_desc FROM paramsv
             WHERE paramsv_alg = '{algorithm}';
         """
-        params = connect(params_sql)
+        params = connect(params_sql)[0]
 
-    return f'{{"{algorithm}": {json.dumps(params)}}}'
+    info_dict = {}
+    info_dict['param'] = params[0]
+    info_dict['domain'] = params[1]
+    info_dict['desc'] = params[2]
 
-@app.route("/transformerSelect", methods=["GET", "POST", "PUT"])
-def transformerSelect():
-    global transformer
-
-    transformer = request.form["transformer"]
-
-    if transformer == 'None':
-        transformer = None
-        return f'{{"{transformer}": {{}}}}'
-
-    isParams = connect(
-        "SELECT algv_params FROM algv WHERE algv_algname = '" + transformer + "';"
-    )[0][0]
-
-    if isParams:
-        params_sql = f"""
-            SELECT paramsv_param FROM paramsv
-            WHERE paramsv_alg = '{transformer}';
-        """
-        params = connect(params_sql)
-
-    return f'{{"{transformer}": {json.dumps(params)}}}'
-
+    return f'{{"{algorithm}": {json.dumps(info_dict)}}}'
 
 @app.route("/runAlg", methods=["GET", "POST", "PUT"])
 def runAlg():

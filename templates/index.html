@@ -26,7 +26,10 @@
         // HAS to be here for some reason
         MathJax = {
           tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            macros: {
+                inf: "\\infty"
+            }
           },
           svg: {
             fontCache: 'global'
