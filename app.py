@@ -90,16 +90,24 @@ def dataSelect():
     return json.dumps(ret)
 
 
-@app.route("/algSelect", methods=["GET", "POST", "PUT"])
+@app.route("/algSelect", methods=["POST"])
 def algSelect():
     global algorithm
-    # algorithm = request.form["algorithm"]
-    algorithm = request.args.get('alg')
+    alg_type = request.args.get('alg_type')
+    alg = request.args.get('alg')
 
-    if algorithm == 'None':
-        algorithm = None
-        return f'{{"{algorithm}": {{}}}}'
+    if alg_type == 'lm':
+        algorithm = alg
+    elif alg_type == 'transformer':
+        if alg == 'None':
+            # transformer = None
+            return f'{{"{alg}": {{}}}}'
+        transformer = alg
 
+    else:
+        abort(500, 'Unknown algorithm type passed to the backend, please contact administrator and reload the page.')
+
+    
     isParams = connect(
         "SELECT algv_params FROM algv WHERE algv_algname = '" + algorithm + "';"
     )[0][0]
@@ -107,7 +115,7 @@ def algSelect():
     if isParams:
         params_sql = f"""
             SELECT paramsv_param, paramsv_domain, paramsv_desc FROM paramsv
-            WHERE paramsv_alg = '{algorithm}';
+            WHERE paramsv_alg = '{algorithm if alg_type == 'lm' else transformer}';
         """
         params = connect(params_sql)[0]
 
@@ -116,9 +124,10 @@ def algSelect():
     info_dict['domain'] = params[1]
     info_dict['desc'] = params[2]
 
-    return f'{{"{algorithm}": {json.dumps(info_dict)}}}'
+    return f'{{"{alg}": {json.dumps(info_dict)}}}'
 
-@app.route("/runAlg", methods=["GET", "POST", "PUT"])
+# TODO: make this more modular
+@app.route("/runAlg", methods=["POST"])
 def runAlg():
     global dataShortName, algorithm, transformer, features
     ret_strs = []
@@ -128,7 +137,6 @@ def runAlg():
     lm_hyperparams = data['lm_hyperparams']
     transformer_hyperparams = data['transformer_hyperparams']
 
-    # Features aren't algorithm parameters, but it's easy to ship them to the backend this way for now
     features = data["feat_idxs"]
 
     def_hyperp_query_str = """
@@ -304,12 +312,12 @@ def runAlg():
 
     # TODO: Clean up this putrid mess
     ks = list(ret_val.keys())
-    print('KS--------------------')
-    print(ks)
+    # print('KS--------------------')
+    # print(ks)
     for idx in range(len(ks) - 2):
         if idx < 2:
             ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[0].lower()))
         else:
             ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[1].lower()))
 
-    return json.dumps([ret_strs, ret_val])
+    return json.dumps([ret_strs, ret_val, {'label_str': label_desc}, {'sens_names': sens_names}])

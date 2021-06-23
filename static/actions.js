@@ -1,4 +1,4 @@
-
+var hyperp_info = {};
 
 var table = new Tabulator("#dataVisualizationTable", {
     layout: "fitDataStretch",
@@ -48,7 +48,7 @@ function startUp() {
 }
 
 
-function makePlot(res) {
+function makePlot(res, label_str, up_names) {
     u_up = res['U_up'];
     u_down = res['U_down'];
     p_up = res['P_up'];
@@ -63,26 +63,36 @@ function makePlot(res) {
     plotLoc = document.getElementById('addPlotHere');
 
     var data1 = {
-            x: ['Men', 'Women'],
+            // x: ['Men', 'Women'],
+            x: [up_names[0], up_names[1]],
             y: [u_up / u_tot, p_up / p_tot],
-            name: 'Predicted Default',
+            name: 'Predicted to ' + label_str,
             type: 'bar'
     };
 
     var data2 = {
-            x: ['Men', 'Women'],
+            x: [up_names[0], up_names[1]],
             y: [u_down / u_tot, p_down / p_tot],
-            name: 'Predicted No Default',
+            name: 'Predicted No ' + label_str,
             type: 'bar'
     };
 
     var data = [data1, data2];
     var layout = {
         barmode: 'group',
-        title: 'Percent of Each Group Predicted as Defaulting/Not Defaulting'
+        title: '% Per Group Predicted to ' + label_str + '/not '+ label_str,
+        legend: {
+            x: 0.7,
+            y: 1.1
+        }
     };
 
-    Plotly.newPlot(plotLoc, data, layout);
+    // Necessary?
+    var config = {
+        responsive: true
+    };
+
+    Plotly.newPlot(plotLoc, data, layout, config);
 }
 
 $(function () {
@@ -112,7 +122,7 @@ $(function () {
         e.preventDefault();
         $.ajax({
             type: "POST",
-            url: "/algSelect?alg=" + document.getElementById('algorithm').value,
+            url: "/algSelect?alg=" + document.getElementById('algorithm').value + '&alg_type=lm',
             data: $("#algorithm").serialize(),
             success: function (data) {
                 var algData = JSON.parse(data);
@@ -126,6 +136,8 @@ $(function () {
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
+                console.log('DESC');
+                console.log(desc);
 
                 // Check if the second command is the latex command inf
                 if (domain[2] == 'inf'){
@@ -145,7 +157,9 @@ $(function () {
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
                 for (i = 0; i < 1; i++) {
                     $("#addLMParamsHere").append(
-                        "<p><span class='lm_tooltip'>" +
+                        "<p><span class='lm_tooltip' title='" +
+                            desc +
+                            "'>" +
                             param +
                             ' </span><input type="text" id="' +
                             param +
@@ -169,7 +183,7 @@ $(function (){
         e.preventDefault();
         $.ajax({
             type: "POST",
-            url: "/algSelect?alg=" + document.getElementById('transformer').value,
+            url: "/algSelect?alg=" + document.getElementById('transformer').value + '&alg_type=transformer',
             data: $("#transformer").serialize(),
             success: function(data) {
                 var algData = JSON.parse(data);
@@ -188,6 +202,8 @@ $(function (){
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
+                console.log('DESC');
+                console.log(desc);
 
                 // Check if the second command is the latex command inf
                 if (domain[2] == 'inf'){
@@ -207,7 +223,9 @@ $(function (){
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
                 for (i = 0; i < 1; i++) {
                     $("#addTParamsHere").append(
-                        "<p><span class='lm_tooltip'>" +
+                        "<p><span class='t_tooltip' title='" +
+                            desc + 
+                            "'>" +
                             param +
                             ' </span><input type="text" id="' +
                             param +
@@ -274,8 +292,10 @@ $(document).on("submit", function (e) {
             $("#runModel").prop('disabled', false);
             document.getElementById("loading").style.display = 'none';
 
-            var res = data[1];
             var res_str = data[0];
+            var res = data[1];
+            var label_str = data[2]['label_str'];
+            var up_names = data[3]['sens_names'];
 
             // Make the results div appear
             document.getElementById("results_div").style.display = 'block';
@@ -290,7 +310,7 @@ $(document).on("submit", function (e) {
                 $("#warningModal").modal('show');
             }
 
-            makePlot(res);
+            makePlot(res, label_str, up_names);
         },
         error: function(request, status, error) {
             $("#runModel").prop('disabled', false);
@@ -305,25 +325,20 @@ $(document).on("submit", function (e) {
 $(document).ready(function () {
     $('.tooltipst').tooltipster({
         content: $('<div>THIS IS THE LOGO!</div>'),
-        // Doesn't work :( 
+        // Doesn't work :(
         theme: 'tooltipster-punk'
     });
 });
 
 
 // This garbage is needed for tooltips on dynamically created content.
+// TODO: figure out how to make this work for n hyperparameters (altho probably just hardcoding in 2-3 is fine)
 $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
-    $(this).tooltipster({
-        content: $('<div>' + 'Here is info about "C"' + '</div>')
-    });
-
+    $(this).tooltipster();
     $(this).tooltipster('show');
 });
 
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
-    $(this).tooltipster({
-        content: $('<div>' + 'Here is info about "d"' + '</div>')
-    });
-
+    $(this).tooltipster();
     $(this).tooltipster('show');
 });
