@@ -48,7 +48,9 @@ class ResultsHandler:
         predictor: object,
         data: DataHandler,
         sens_idx: int,
+        # Explicity requires a tuple of 2 ints
         u_p_vals: Tuple[int, int],
+        # Arbitrary length list of ints, no way to denote this otherwise (tmk)
         feats: List[int],
         # Requires a .fit() or .fit_transform() method to "train" the transformer, and a .transform() method to transform new data
         scaler: Type[TransformerMixin] = MinMaxScaler((0,1)),

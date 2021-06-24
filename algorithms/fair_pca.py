@@ -127,7 +127,7 @@ class FairPCA(TransformerMixin):
         else:
             P_smart = P_last
 
-        # Return the project matrix "P_smart" (name from original Matlab code, I just liked it)
+        # Return the project matrix "P_smart" (name from original Matlab code, I just liked it so I'm using it too)
         self.P_smart = P_smart
 
     def transform(self, X: NDArray):

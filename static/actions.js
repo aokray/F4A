@@ -306,6 +306,18 @@ $(document).on("submit", function (e) {
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
 
+            $("#modal-info")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted no ' +
+            up_names[0] +
+            ' or ' +
+            up_names[1] +
+            ' will ' +
+            label_str.toLowerCase() +
+            ' at all! Even if the accuracy is relatively high, this model will predict no one will ever ' +
+            label_str.toLowerCase() +
+            ', meaning it is equivalent to just assuming no one will ever ' +
+            label_str.toLowerCase() +
+            '. Try adding more features and see what happens!';
+
             if (res['U_up'] == 0 && res['P_up'] == 0) {
                 $("#warningModal").modal('show');
             }
