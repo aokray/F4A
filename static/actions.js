@@ -80,7 +80,7 @@ function makePlot(res, label_str, up_names) {
     var data = [data1, data2];
     var layout = {
         barmode: 'group',
-        title: '% Per Group Predicted to ' + label_str + '/not '+ label_str,
+        title: '% Per Group Predicted to ' + label_str + '/Not '+ label_str,
         legend: {
             x: 0.7,
             y: 1.1
@@ -307,9 +307,9 @@ $(document).on("submit", function (e) {
             $("#u_down").text(res_str[3]);
 
             $("#modal-info")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted no ' +
-            up_names[0] +
+            up_names[0].toLowerCase() +
             ' or ' +
-            up_names[1] +
+            up_names[1].toLowerCase() +
             ' will ' +
             label_str.toLowerCase() +
             ' at all! Even if the accuracy is relatively high, this model will predict no one will ever ' +

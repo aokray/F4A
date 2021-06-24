@@ -112,12 +112,15 @@ class ResultsHandler:
             label_train = label[idx_row]
             label_test = label[idx_row_test]
 
+            u_train_idxs = np.where(sample_train[:,self.sens_idx] == u_value)[0]
+            p_train_idxs = np.where(sample_train[:,self.sens_idx] == p_value)[0]
+
             if self.feats is not None:
                 sample_train = sample_train[:,self.feats]
                 sample_test = sample_test[:,self.feats]
 
             if self.transformer is not None:
-                self.transformer.fit(sample_train)
+                self.transformer.fit(sample_train, u_train_idxs, p_train_idxs)
                 sample_train = self.transformer.transform(sample_train)
                 sample_test = self.transformer.transform(sample_test)
 

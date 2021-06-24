@@ -95,18 +95,17 @@ class FairPCA(TransformerMixin):
         T: number of iterations to run MW algorithm
 
     """
-    def __init__(self, sens_idx: int, u_value: int, p_value: int, d: int, eta: float = 20, T: int = 5):
-        self.sens_idx = sens_idx
-        self.u_value = u_value
-        self.p_value = p_value
+    def __init__(self, d: int, eta: float = 20, T: int = 5):
         self.d = d
         self.eta = eta
         self.T = T
         self.P_smart = None
 
-    def fit(self, X: NDArray):
-        u_idxs = np.where(X[:,self.sens_idx] == self.u_value)[0]
-        p_idxs = np.where(X[:,self.sens_idx] == self.p_value)[0]
+    def fit(self, X: NDArray, u_idxs: NDArray, p_idxs: NDArray):
+        # The below implementation would throw errors because there is NO guarantee that the sensitive column is passed to this class
+        # Now it's requred that u/p_idxs are passed to this class explicitly
+        # u_idxs = np.where(X[:,self.sens_idx] == self.u_value)[0]
+        # p_idxs = np.where(X[:,self.sens_idx] == self.p_value)[0]
 
         A = X[u_idxs]
         B = X[p_idxs]

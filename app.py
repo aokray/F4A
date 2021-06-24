@@ -92,7 +92,7 @@ def dataSelect():
 
 @app.route("/algSelect", methods=["POST"])
 def algSelect():
-    global algorithm
+    global algorithm, transformer
     alg_type = request.args.get('alg_type')
     alg = request.args.get('alg')
 
@@ -100,7 +100,6 @@ def algSelect():
         algorithm = alg
     elif alg_type == 'transformer':
         if alg == 'None':
-            # transformer = None
             return f'{{"{alg}": {{}}}}'
         transformer = alg
 
@@ -246,7 +245,7 @@ def runAlg():
             if transformer_string in alg_defaults:
                 transformer_hyperparams.update(alg_defaults[transformer_string])
 
-            t = eval(transformer_string + '(sens_idx-1, sens_vals[0], sens_vals[1], **transformer_hyperparams)')
+            t = eval(transformer_string + '(**transformer_hyperparams)')
         else:
             t = None
 
