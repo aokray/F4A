@@ -1,10 +1,51 @@
+body {
+  background-color: #1B1B1B;
+}
+
+h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+}
+
+div {
+  font-family: 'Montserrat', sans-serif;
+}  
+  /*font-weight: 200;
+}
+
+#dataVisualizationTable {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+}*/
+
+.textPrimary {
+  color: #f7f7f7;
+}
+
+.backgroundPrimary {
+  background-color: #1B1B1B;
+}
+
+.backgroundSecondary {
+  background-color: #C0A95D;
+}
+
+.borderSecondary {
+  border-color: #C0A95D;
+}
+
 .topright {
   height: 15vh;
 }
 
 hr {
-    border-color: lightgray;
-    color: lightgray;
+    border-color: #C0A95D;
+    border-style: dotted none none;
+    border-width: 5px;
+    width: 5%;
+    margin-top: 64px;
+    margin-bottom: 64px;
+    
 }
 
 table, th, td {
