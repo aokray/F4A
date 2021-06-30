@@ -10,15 +10,19 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
-    <!-- TODO: set a favicon for the site probably -->
-    <!--link rel="icon" type="image/FILE_EXT" href=""/-->
+    <link rel="icon" type="image/FILE_EXT" href="{{ url_for('static', filename='favicon_gold.ico') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='f4a.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tooltipster-master/dist/css/tooltipster.bundle.min.css') }}" />
     <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='f4a.css') }}">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;500&display=swap" rel="stylesheet">
 
     <script type="text/javascript" src="{{ url_for('static', filename='tabulator-master/dist/js/tabulator.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='plotly-2.0.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='plotly-2.1.0.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='tooltipster-master/dist/js/tooltipster.bundle.min.js') }}"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     
@@ -45,13 +49,13 @@
     <div class='container-fluid'>
         <div class='row'>
             <div class='col-md-10'>
-                <h1 class="pull-left"><u>Fairness For All (F4A)</u></h1>
-                <div style="padding:0;" class="col-md-10">
+                <h1 class="pull-left textPrimary"><u>Fairness For All (F4A)</u></h1>
+                <div style="padding:0;" class="col-md-10 textPrimary">
                    ENTER GOOD INTRO HERE
                 </div>
             </div>
             <div class='col-md-2'>
-                <img style="float:right;" src="{{ url_for('static', filename='f4a_logo.png') }}" class="topright rounded-circle tooltipst">
+                <img style="float:right;" src="{{ url_for('static', filename='f4a_logo_gold.png') }}" class="topright rounded-circle tooltipst">
             </div>
         </div>
     </div>
@@ -61,12 +65,12 @@
     <div class='container-fluid'>
         <div class='row'>
             <div class='col-md-1'></div>
-            <div class='col-md-2'>
+            <div class='col-md-2 textPrimary'>
                 Select a data set to begin:
 
                 <br/>
                 <form action='/dataSelect' method='POST'>
-                    <select name='dataset' id="dataset">
+                    <select class="textPrimary backgroundPrimary" name='dataset' id="dataset">
                         <option disabled selected value>-- Select a value --</option>
                         {% for dataset in dataset_names %}
                             <option value="{{ dataset[1] }}">{{ dataset[0] }}</option>
@@ -84,11 +88,11 @@
 
         <div class='row'>
             <div class='col-md-3'></div>
-            <div class='col-md-1'>
+            <div class='col-md-1 textPrimary'>
                 Select an algorithm to use:
                 <br/>
                 <form action='/algSelect' method='POST'>
-                    <select id='algorithm' name='algorithm'>
+                    <select class="textPrimary backgroundPrimary" id='algorithm' name='algorithm'>
                         <option disabled selected value>-- Select a value --</option>
                         {% for alg in algorithm_names %}
                             <option value="{{ alg[0] }}">{{ alg[0] }}</option>
@@ -97,11 +101,11 @@
                 </form>
             </div>
             <div class='col-md-3'></div>
-            <div class='col-md-1'>
+            <div class='col-md-1 textPrimary'>
                 Optionally, select a transformer to use:
                 <br/>
                 <form action='/transformerSelect' method='POST'>
-                    <select id='transformer' name='transformer'>
+                    <select class="textPrimary backgroundPrimary" id='transformer' name='transformer'>
                         <option disabled value>-- Select a value --</option>
                         <option selected>None</option>
                         {% for trans in transformer_names %}
@@ -116,13 +120,13 @@
 
     <div class='text-center' id='submitButton' style='padding-top: 2%;'>
         <form id='paramsInputs' name='paramsInputs' action='/runAlg' method='POST'>
-            <p>Please note: Once submitted, the process <i>may</i> take some time to
+            <p class='textPrimary'>Please note: Once submitted, the process <i>may</i> take some time to
                 complete. Please do not reload and resubmit until it's finished.</p>
 
-            <div id='addLMParamsHere'></div>
-            <div id='addTParamsHere'></div>
+            <div class='textPrimary' id='addLMParamsHere'></div>
+            <div class='textPrimary' id='addTParamsHere'></div>
 
-            <button id='runModel' name='runModel' type='submit' class='btn btn-success'>Submit</button>
+            <button id='runModel' name='runModel' type='submit' class='btn btn-success backgroundSecondary borderSecondary'>Submit</button>
         </form>
     </div>
 
