@@ -37,7 +37,7 @@ def make_plots(sample, datasetName, feat_descs, sens_idx, p_value, u_value, p_la
     plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 
-    for i in np.arange(sample.shape[1] - 1):
+    for i in np.arange(sample.shape[1]):
         scaled_samp = scaler.fit_transform(sample[:,i].reshape(-1,1))
         feat_desc = feat_descs[i]
         # Density overlap plot. Commented out in preference for histograms
@@ -77,7 +77,7 @@ def make_plots(sample, datasetName, feat_descs, sens_idx, p_value, u_value, p_la
         ax.hist(bins[:-1], bins, weights=u, label=u_label, edgecolor='black', ls='dashed', lw=0.5, fc=(1,0,0,0.2))
         ax.hist(bins[:-1], bins, weights=p, label=p_label, edgecolor='black', ls='dotted', lw=0.5, fc=(0,0,1,0.2))
 
-        hds.append(hellinger(u,p))
+        # hds.append(hellinger(u,p))
 
         plt.title("")
         plt.xlabel(feat_desc, fontsize=SMALL_SIZE+2)
@@ -93,7 +93,7 @@ def make_plots(sample, datasetName, feat_descs, sens_idx, p_value, u_value, p_la
         plt.clf()
         ax = None
         
-    return hds
+    # return hds
 
 # sample = np.loadtxt('../datasets/creditcarddefault.csv', delimiter=',')
 # make_plots(sample, 'creditdefault', 'Amount of credit given, Gender, Education, Marital Status, Age, September 2005 Repayment status, August 2005 Repayment status, July 2005 Repayment status, June 2005 Repayment status, May 2005 Repayment status, April 2005 Repayment status, September 2005 Bill amount, August 2005 Bill amount, July 2005 Bill amount, June 2005 Bill amount, May 2005 Bill amount, April 2005 Bill amount, Amount Paid in September 2005, Amount Paid in August 2005, Amount Paid in July 2005, Amount Paid in June 2005, Amount Paid in May 2005, Amount Paid in April 2005'.split(','), 

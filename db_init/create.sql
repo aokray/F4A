@@ -34,7 +34,8 @@ COMMENT ON COLUMN datasets.dataset_upvals IS 'upvals should take the form of {un
 CREATE TABLE algv (
     algv_algname TEXT NOT NULL PRIMARY KEY,
     algv_params BOOLEAN,
-    algv_type TEXT NOT NULL CHECK (algv_type in ('Transformer', 'Learning Method'))
+    algv_type TEXT NOT NULL CHECK (algv_type in ('Transformer', 'Learning Method')),
+    algv_import_str TEXT NOT NULL
 );
 
 -- The parameter validation table

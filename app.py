@@ -10,15 +10,13 @@ from flask import (
     session,
     abort,
 )
-import werkzeug.exceptions as ex
 from utilities.dbUtils import config, connect, connect_insert
 from utilities.make_plots import make_plots
-from sklearn.linear_model import LogisticRegression
+from utilities.startup import on_startup
 import json
 import numpy as np
-from algorithms.handlers import ResultsHandler, DataHandler
-from algorithms.fair_pca import FairPCA
 from algorithms.algorithm_defaults import alg_defaults
+from algorithms.handlers import ResultsHandler, DataHandler
 
 app = Flask(__name__)
 
@@ -32,14 +30,20 @@ data_names = connect("SELECT dataset_name, dataset_shortname FROM datasets;")
 alg_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Learning Method';")
 trans_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Transformer' EXCEPT (SELECT 'None');")
 webtext = connect("SELECT * FROM webtext;")
+import_strs = connect("SELECT algv_import_str FROM algv WHERE algv_algname != 'None';")
 
+for i_str in import_strs:
+    exec(i_str[0])
+
+# Run this only when the application starts up
+on_startup()
 
 @app.route("/")
 def index():
     connect("SELECT VERSION();")
 
     return render_template(
-        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names #, file={}
+        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names
     )
 
 
@@ -48,7 +52,7 @@ def admin():
     return render_template("admin.html")
 
 
-@app.route("/dataSelect", methods=["GET", "POST", "PUT"])
+@app.route("/dataSelect", methods=["POST"])
 def dataSelect():
     global dataShortName
     ret = []
