@@ -319,8 +319,8 @@ def runAlg():
     # print(ks)
     for idx in range(len(ks) - 2):
         if idx < 2:
-            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[0].lower()))
+            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[0].lower(), 'not ' if idx % 2 else ''))
         else:
-            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[1].lower()))
+            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[1].lower(), 'not ' if idx % 2 else ''))
 
     return json.dumps([ret_strs, ret_val, {'label_str': label_desc}, {'sens_names': sens_names}])

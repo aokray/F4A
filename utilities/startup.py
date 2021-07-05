@@ -19,6 +19,7 @@ def on_startup():
             
             path = all[0]
             featnames = all[1]
+            featnames = [x.strip() for x in featnames.split(",")]
             upvals = all[2]
             sensidx = all[3]
             sensnames = all[4]

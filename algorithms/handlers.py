@@ -36,8 +36,8 @@ class DataHandler:
         self.idxs = np.loadtxt(value, delimiter = self.delimiter)
         self.idxs = self.idxs.astype(int)
         
-        # Temporarily only take first 5 idx sets
-        self.idxs = self.idxs[0:5]
+        # Temporarily only take first 10 idx sets
+        # self.idxs = self.idxs[0:10]
 
 
 
@@ -146,6 +146,6 @@ class ResultsHandler:
             p_ups.append(P_up)
             p_downs.append(P_down)
             
-        return (acc, sd, np.average(u_ups), np.average(u_downs), np.average(p_ups), np.average(p_downs))
+        return (np.average(accs), np.average(sds), np.average(u_ups), np.average(u_downs), np.average(p_ups), np.average(p_downs))
 
 
