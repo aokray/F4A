@@ -44,6 +44,7 @@ Ensure that your Python 3.5+ install is being used (whether it be globally via P
 2.) Download necessary packages for frontend and put them into the "static/" folder.
  - [Tabulator](http://tabulator.info/) v4.9 (older/newer versions may work, but 4.9 certainly works)
  - [Tooltipster](https://github.com/calebjacob/tooltipster) master branch
+ - [Plotly](https://plotly.com/javascript/getting-started/) min js file
 
 
 3.) Modify the database.ini file to match your database's credentials
