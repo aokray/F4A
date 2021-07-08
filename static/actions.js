@@ -140,8 +140,6 @@ $(function () {
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
-                console.log('DESC');
-                console.log(desc);
 
                 // Check if the second command is the latex command inf
                 if (domain[2] == 'inf'){
@@ -211,8 +209,6 @@ $(function (){
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
-                console.log('DESC');
-                console.log(desc);
 
                 // Check if the second command is the latex command inf
                 if (domain[2] == 'inf'){
@@ -315,14 +311,14 @@ $(document).on("submit", function (e) {
             document.getElementById("results_div").style.display = 'block';
             $("#accuracy").text("Accuracy: " + res["acc"] + "%");
             $("#sd").text("Statistical Disparity: " + res["sd"]);
-            $("#eo").text("Does This Model Satisfy Equalized Odds? : " + (res['eo'] ? "Yes" : "No"));
+            $("#eo").text("Does This Model Approximately Satisfy Equalized Odds? : " + (res['eo'] ? "Yes" : "No"));
             $("#eo")[0].title ='<p>' + up_names[0] + ':</p><p>Average TPR: ' + res['rates'][0] + '</p><p>Average FPR: ' + res['rates'][1] + '</p><br><p>' + up_names[1] + '</p><p>Average TPR: ' + res['rates'][2] + '</p><p>Average FPR: ' + res['rates'][3] + '</p>';
             $("#p_up").text(res_str[0]);
             $("#p_down").text(res_str[1]);
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
 
-            $("#modal-info")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted no ' +
+            $("#modal-info_zp")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted no ' +
             up_names[0].toLowerCase() +
             ' or ' +
             up_names[1].toLowerCase() +
@@ -334,8 +330,21 @@ $(document).on("submit", function (e) {
             label_str.toLowerCase() +
             '. Try adding more features and see what happens!';
 
+            $("#modal-info_btpr")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted less than half of those who should  ' +
+            label_str.toLowerCase() +
+            ', in one group or the other, actually will. If you still see a high accuracy, it is because the model is predicted many false positives (people in the opposite situation) correctly. ' +
+            'This is because the problem is "inbalanced", meaning more people will not '+ 
+            label_str.toLowerCase() + 
+            ' , as opposed to those that should predicted to ' +
+            label_str.toLowerCase() + '.'
+            ;
+
             if (res['U_up'] <= 1 && res['P_up'] <= 1) {
-                $("#warningModal").modal('show');
+                $("#warningModal_zero_positives").modal('show');
+            }
+
+            if(res['rates'][0] < 0.5 || res['rates'][2] < 0.5) {
+                $("#warningModal_bad_tpr").modal('show');
             }
 
             makePlot(res, label_str, up_names);
@@ -347,8 +356,8 @@ $(document).on("submit", function (e) {
         error: function(request, status, error) {
             $("#runModel").prop('disabled', false);
             document.getElementById("loading").style.display = 'none';
-            console.log(request);
-            alert(new DOMParser().parseFromString(request.responseText, "text/html").documentElement.lastChild.lastElementChild.textContent);
+            $('#modal-info_backend_error')[0].innerHTML = new DOMParser().parseFromString(request.responseText, "text/html").documentElement.lastChild.lastElementChild.textContent;
+            $("#warningModal_backend").modal('show');
         }
     });
     document.getElementById("loading").style.display = 'block';
