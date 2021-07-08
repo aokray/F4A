@@ -22,7 +22,7 @@ var table = new Tabulator("#dataVisualizationTable", {
             field: "dist",
             hozAlign: "center",
             headerSort: false,
-            headerTooltip: "These images show how the values of one subpopulation relates to another subpopulation",
+            headerTooltip: "These images show how the values of one subpopulation relates to another subpopulation (e.g. how much men pay in one month vs how much women pay in one month). More overlap means the two wubpopulations are more similar.",
             formatter: "image",
             formatterParams: { height: "250px", width: "250px", urlPrefix: "static/", urlSuffix: ".png" },
         },
@@ -113,6 +113,10 @@ $(function () {
                 table.setData(formData);
             },
         });
+
+        $('html, body').animate({
+            scrollTop: $("#dataset").offset().top
+        }, 900);
     });
 });
 
@@ -175,6 +179,11 @@ $(function () {
                 MathJax.typeset();
             },
         });
+
+        // It's lit!
+        $('html, body').animate({
+            scrollTop: $("#addLMParamsHere").offset().top
+        }, 900);
     });
 });
 
@@ -241,6 +250,11 @@ $(function (){
                 MathJax.typeset();
             },
         });
+
+        $('html, body').animate({
+            scrollTop: $("#addTParamsHere").offset().top
+        }, 900);
+
     });
 });
 
@@ -301,6 +315,8 @@ $(document).on("submit", function (e) {
             document.getElementById("results_div").style.display = 'block';
             $("#accuracy").text("Accuracy: " + res["acc"] + "%");
             $("#sd").text("Statistical Disparity: " + res["sd"]);
+            $("#eo").text("Does This Model Satisfy Equalized Odds? : " + (res['eo'] ? "Yes" : "No"));
+            $("#eo")[0].title ='<p>' + up_names[0] + ':</p><p>Average TPR: ' + res['rates'][0] + '</p><p>Average FPR: ' + res['rates'][1] + '</p><br><p>' + up_names[1] + '</p><p>Average TPR: ' + res['rates'][2] + '</p><p>Average FPR: ' + res['rates'][3] + '</p>';
             $("#p_up").text(res_str[0]);
             $("#p_down").text(res_str[1]);
             $("#u_up").text(res_str[2]);
@@ -318,11 +334,15 @@ $(document).on("submit", function (e) {
             label_str.toLowerCase() +
             '. Try adding more features and see what happens!';
 
-            if (res['U_up'] == 0 && res['P_up'] == 0) {
+            if (res['U_up'] <= 1 && res['P_up'] <= 1) {
                 $("#warningModal").modal('show');
             }
 
             makePlot(res, label_str, up_names);
+
+            $('html, body').animate({
+                scrollTop: $("#results").offset().top
+            }, 900);
         },
         error: function(request, status, error) {
             $("#runModel").prop('disabled', false);
@@ -352,5 +372,10 @@ $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
 
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
     $(this).tooltipster();
+    $(this).tooltipster('show');
+});
+
+$('body').on('mouseover mouseenter', '.eo', function(){
+    $(this).tooltipster({contentAsHTML: true});
     $(this).tooltipster('show');
 });

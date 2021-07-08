@@ -31,3 +31,10 @@ def on_startup():
             sens_attr = [x.strip() for x in sensnames.split(',')]
             os.makedirs('static/' + shortname)
             make_plots(sample, shortname, featnames, sensidx-1, upvals[1], upvals[0], sens_attr[1], sens_attr[0])
+
+def parse_webtexts(select_str):
+    ret_dict = {}
+    for row in select_str:
+        ret_dict[row[0]] = row[1]
+    
+    return ret_dict

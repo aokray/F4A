@@ -47,7 +47,7 @@
             <div class='col-md-10'>
                 <h1 class="pull-left"><u>Fairness For All (F4A)</u></h1>
                 <div style="padding:0;" class="col-md-10">
-                   ENTER GOOD INTRO HERE
+                   {{ webtext_dict['intro'] | safe}}
                 </div>
             </div>
             <div class='col-md-2'>
@@ -149,6 +149,8 @@
                             <span id='accuracy'></span>
                             &nbsp; &nbsp;
                             <span id='sd'></span>
+                            &nbsp; &nbsp;
+                            <span id='eo' class='eo'></span>
                         </span>
                     </p>
                 </div>
