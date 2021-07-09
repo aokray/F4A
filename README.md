@@ -16,7 +16,7 @@ A website to help explain fair machine learning (video demonstration incoming).
 
 # Prerequisites
 
-- Python >= 3.5 (Highly recommended: Anaconda)
+- Python >= 3.5 (Assumed environment: Anaconda)
 - Postgres 13
 
 # Setup
@@ -25,15 +25,12 @@ A website to help explain fair machine learning (video demonstration incoming).
 Ensure you have Python 3.5 or greater installed
 - Recommended: Install Anaconda, it includes almost all the packages necessary for F4A to run.
 - Optional between step, set up a virtual environment
-- pip install the following packages if needed
-    - Flask
-    - psycopg2
-    - nptyping
+- Use "pip install -r requirements.txt"  or "conda install --file requirements.txt" to install all other necessary packages 
 
 Download and install Postgres 13
 - Set up your username and password
 - Load your username/password into the database.ini file
-- ...
+- If necessary, modify the database name to the name of your choosing (recommended - "F4A")
 
 Ensure that your Python 3.5+ install is being used (whether it be globally via PATH variable or activated virtual environment) by opening Python in a command prompt. Ensure the Python version at the top is correct.
 
@@ -49,7 +46,7 @@ Ensure that your Python 3.5+ install is being used (whether it be globally via P
 
 3.) Modify the database.ini file to match your database's credentials
 
-4.) Download data (suggested/see for a template of data format: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder (currently needed: Credit Default dataset). 
+4.) Download data (suggested/see for a template of data format: [http://okray.ml/data](http://okray.ml/data)) and load the CSV files into the "datasets/" folder (currently available: Credit Default dataset, COMPAS dataset 2). 
 - Each dataset requires:
     - 1.) The dataset itself (as a CSV file for now)
     - 2.) *r* rows of training index sets, where the number of columns is the number of instances *n* in the training set and each entry is the index of a training sample.
@@ -75,8 +72,8 @@ Ensure that your Python 3.5+ install is being used (whether it be globally via P
 
 
 5.) Set up the database
-- Open the db_init folder and run the "create.sql" file. This will make the necessary database tables.
-- Optional: Run the "load.sql" file to load in the Credit Default data set example
+- Open the db_init folder and run the "create.sql" file in the database of your choosing, either in PGAdmin or with an application like DBeaver. This will make the necessary database tables.
+- Optionally: Run the "load.sql" file, either unmodified or with changes of your choosing.
 
 # Running the application
 Currently only set up to run in development environments. See this page https://flask.palletsprojects.com/en/1.1.x/quickstart/ for basic instructions. All that's really needed is the command "flask run" in the cloned directory.
