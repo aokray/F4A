@@ -169,6 +169,8 @@ def runAlg():
     dh = DataHandler(dataPath, idxsPath)
     n = dh.dataset.shape[0]
     p = dh.dataset.shape[1] - 1
+    # r = reduced # of features
+    r = len(features)
 
     # Temporary measure - only allow real numbers to be hyperparameters, e.g. no changing loss function from L1 to L2
     # Use of eval() begins to unravel this measure
@@ -185,7 +187,7 @@ def runAlg():
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
             transformer_hyperparams[key] = eval(def_val)
         else:
-            transformer_hyperparams[key] = int(transformer_hyperparams[key])
+            transformer_hyperparams[key] = getType(transformer_hyperparams[key])(transformer_hyperparams[key])
 
     
     if features is None or features == []:
@@ -258,6 +260,14 @@ def runAlg():
             if transformer_string in alg_defaults:
                 transformer_hyperparams.update(alg_defaults[transformer_string])
 
+            if transformer_string == 'GeometricFairRepresentation':
+                p_idxs = np.where(np.array(features) == (sens_idx - 1))[0]
+
+                if len(p_idxs):
+                    transformer_hyperparams['sens_idxs'] = p_idxs
+                else:
+                    abort(500, 'To use the transformer "Geometric Fair Representation", you MUST include the sensitive attribute in the features you choose.')
+
             t = eval(transformer_string + '(**transformer_hyperparams)')
         else:
             transformer_string = None
@@ -309,6 +319,10 @@ def runAlg():
             if transformer_string in alg_defaults:
                 for key, val in alg_defaults[transformer_string].items():
                     del transformer_hyperparams[key]
+
+            if transformer_string == 'GeometricFairRepresentation':
+                # We have to delete this, because it's the sensitive index RELATIVE to the chosen features. Not a good thing to include, and should not be compared against.
+                del transformer_hyperparams['sens_idxs']
 
         args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in lm_hyperparams.items())
 

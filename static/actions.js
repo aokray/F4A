@@ -141,9 +141,14 @@ $(function () {
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
 
+                var l_bracket = domain.slice(0,1);
+                var dom = domain.slice(1, domain.length-1);
+                var r_bracket = domain.slice(domain.length-1, domain.length);
+                domain = dom.split(',');
+
                 // Check if the second command is the latex command inf
-                if (domain[2] == 'inf'){
-                    domain[2] = '\\' + domain[2];
+                if (domain[1] == 'inf') {
+                    domain[1] = '\\' + domain[1];
                 }
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
@@ -166,11 +171,13 @@ $(function () {
                             ' </span><input type="text" id="' +
                             param +
                             '" name="lm_hyperp">' +
-                            " Range: $(" +
+                            " Valid Values: $" +
+                            l_bracket +
                             domain[0] +
                             ',' +
                             domain[1] +
-                            ")$</p><br/>"
+                            r_bracket +
+                            "$</p><br/>"
                     );
                 }
 
@@ -205,14 +212,25 @@ $(function (){
                 var params_data = algData[alg];
 
                 var param = params_data['param'];
+                var print_param = null;
+                if (param == 'lmbda') {
+                    print_param = '\\' + param;
+                } else {
+                    print_param = param;
+                }
 
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
 
+                var l_bracket = domain.slice(0,1);
+                var dom = domain.slice(1, domain.length-1);
+                var r_bracket = domain.slice(domain.length-1, domain.length);
+                domain = dom.split(',');
+
                 // Check if the second command is the latex command inf
-                if (domain[2] == 'inf'){
-                    domain[2] = '\\' + domain[2];
+                if (domain[1] == 'inf'){
+                    domain[1] = '\\' + domain[1];
                 }
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
@@ -230,16 +248,18 @@ $(function (){
                     $("#addTParamsHere").append(
                         "<p><span class='t_tooltip' title='" +
                             desc + 
-                            "'>" +
-                            param +
-                            ' </span><input type="text" id="' +
+                            "'>$" +
+                            print_param +
+                            '$ </span><input type="text" id="' +
                             param +
                             '" name="t_hyperp">' +
-                            " Range: $(" +
+                            " Valid Values: $" +
+                            l_bracket +
                             domain[0] +
                             ',' +
                             domain[1] +
-                            ")$</p><br/>"
+                            r_bracket +
+                            "$</p><br/>"
                     );
                 }
 
@@ -360,7 +380,11 @@ $(document).on("submit", function (e) {
             $("#warningModal_backend").modal('show');
         }
     });
+
     document.getElementById("loading").style.display = 'block';
+    $('html, body').animate({
+        scrollTop: $("#loading").offset().top
+    }, 900);
 });
 
 $(document).ready(function () {
@@ -379,9 +403,18 @@ $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
     $(this).tooltipster('show');
 });
 
+// At the very least, cannot be declared in the function because on each hover it resets the counter
+// and slows the page down with a typeset every hover
+var hover_count = 0;
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
+    hover_count++;
+
     $(this).tooltipster();
     $(this).tooltipster('show');
+
+    if (hover_count < 2) {
+        MathJax.typeset();
+    }
 });
 
 $('body').on('mouseover mouseenter', '.eo', function(){
