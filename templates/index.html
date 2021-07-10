@@ -81,6 +81,7 @@
                         {% endfor %}
                     </select>
                 </form>
+                <span id='sens_feature_info'></span>
             </div>
 
             <div class='col-md-8'>
@@ -124,8 +125,9 @@
 
     <div class='text-center' id='submitButton' style='padding-top: 2%;'>
         <form id='paramsInputs' name='paramsInputs' action='/runAlg' method='POST'>
-            <p>Please note: Once submitted, the process <i>may</i> take some time to
-                complete. Please do not reload and resubmit until it's finished.</p>
+            <p><b>Please note:</b> Once submitted, the process <i>may</i> take some time to
+                complete. Even if you've seen the loading wheel for several minutes, the server is running your request.
+                Please do not reload and resubmit until it's finished.</p>
 
             <div id='addLMParamsHere'></div>
             <div id='addTParamsHere'></div>

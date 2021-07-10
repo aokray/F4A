@@ -1,4 +1,6 @@
-var hyperp_info = {};
+// At the very least, cannot be declared in the function because on each hover it resets the counter
+// and slows the page down with a typeset every hover
+var hover_count = 0;
 
 var table = new Tabulator("#dataVisualizationTable", {
     layout: "fitDataStretch",
@@ -105,8 +107,11 @@ $(function () {
             timeout: 0,
             data: $("#dataset").serialize(),
             success: function (data) {
-                // $("#dataVisCheckpoint").find("tr:gt(0)").remove();
-                formData = JSON.parse(data);
+                all_data = JSON.parse(data);
+                formData = all_data['formData'];
+                sens_name = all_data['sens_name'];
+
+                $('#sens_feature_info')[0].innerHTML = 'Sensitive Feature: ' + sens_name;
 
                 var dict_keys = Object.keys(formData);
 
@@ -137,7 +142,6 @@ $(function () {
 
                 var param = params_data['param'];
 
-                // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
 
@@ -158,7 +162,7 @@ $(function () {
                 $("#addLMParamsHere").append(
                     "<br/><p>Optional Hyperparameter(s) for " +
                         $("#algorithm").val() +
-                        " are:<br/>"
+                        ":<br/>"
                 );
 
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
@@ -180,7 +184,8 @@ $(function () {
                             "$</p><br/>"
                     );
                 }
-
+                // TODO: Why is THIS necessary here?
+                hover_count = 0;
                 MathJax.typeset();
             },
         });
@@ -219,7 +224,6 @@ $(function (){
                     print_param = param;
                 }
 
-                // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
 
@@ -240,7 +244,7 @@ $(function (){
                 $("#addTParamsHere").append(
                     "<br/><p>Optional Hyperparameter(s) for " +
                         $("#transformer").val() +
-                        " are:<br/>"
+                        ":<br/>"
                 );
 
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
@@ -266,7 +270,7 @@ $(function (){
                 MathJax.typeset();
             },
         });
-
+        hover_count = 0;
         $('html, body').animate({
             scrollTop: $("#addTParamsHere").offset().top
         }, 900);
@@ -403,9 +407,7 @@ $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
     $(this).tooltipster('show');
 });
 
-// At the very least, cannot be declared in the function because on each hover it resets the counter
-// and slows the page down with a typeset every hover
-var hover_count = 0;
+
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
     hover_count++;
 

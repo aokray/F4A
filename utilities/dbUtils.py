@@ -29,14 +29,14 @@ def connect(qstring):
         params = config()
 
         # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
+        # print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
 
         # execute a statement
-        print('Querying...')
+        # print('Querying...')
         cur.execute(qstring)
 
 
@@ -50,11 +50,13 @@ def connect(qstring):
         # close the communication with the PostgreSQL
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
+        print('Error on: ')
+        print(qstring)
         print(error)
     finally:
         if conn is not None:
             conn.close()
-            print('Database connection closed.')
+            # print('Database connection closed.')
 
     return returnVal
 
