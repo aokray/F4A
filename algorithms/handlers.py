@@ -1,7 +1,7 @@
 from typing import Callable, Tuple, List, Type
 from nptyping import NDArray
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.base import TransformerMixin
 from sklearn.metrics import accuracy_score
 
@@ -53,7 +53,7 @@ class ResultsHandler:
         # Arbitrary length list of ints, no way to denote this otherwise (tmk)
         feats: List[int],
         # Requires a .fit() or .fit_transform() method to "train" the transformer, and a .transform() method to transform new data
-        scaler: Type[TransformerMixin] = StandardScaler((0,1)),
+        scaler: Type[TransformerMixin] = MinMaxScaler((0,1)),
         # Requires a .fit() or .fit_transform() method to "train" the transformer, and a .transform() method to transform new data
         transformer: Type[TransformerMixin] = None,
     ):

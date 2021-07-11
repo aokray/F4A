@@ -15,7 +15,7 @@ class GeometricFairRepresentation(TransformerMixin):
         pass
 
     def transform(self, X: NDArray):
-        # ints passed to this function are ok, just have to handle them a little differently
+        # ints as the sensitive index are ok, just have to handle them a little differently
         if isinstance(self.sens_idxs, int):
             orth_vecs = orth(X[:,self.sens_idxs].reshape(-1,1))
         else:
@@ -27,7 +27,8 @@ class GeometricFairRepresentation(TransformerMixin):
 
         R = (np.eye(P.shape[0]) - P) @ X
 
-        for j in range(R.shape[1]):
-            R[:,j] = R[:,j] + self.lmbda * (X[:,j] - R[:,j])
+        if self.lmbda:
+            for j in range(R.shape[1]):
+                R[:,j] = R[:,j] + self.lmbda * (X[:,j] - R[:,j])
 
         return R

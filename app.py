@@ -46,7 +46,7 @@ def index():
     session['algorithm'] = None
     session['transformer'] = None
     session['features'] = None
-    print(connect("SELECT VERSION();"))
+    # print(connect("SELECT VERSION();"))
 
     return render_template(
         "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, webtext_dict=webtext_dict
@@ -65,15 +65,15 @@ def dataSelect():
 
     session['dataShortName'] = request.args.get("shortdataname")
 
-    feats_sql = f"""
+    feats_sql = f'''
         SELECT dataset_featnames, dataset_hdist FROM datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
-    """
+    '''
 
-    sens_sql = f"""
+    sens_sql = f'''
         SELECT dataset_sensidx FROM datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
-    """
+    '''
 
     query = connect(feats_sql)[0]
     feats = query[0]
@@ -132,10 +132,10 @@ def algSelect():
     )[0][0]
 
     if isParams:
-        params_sql = f"""
+        params_sql = f'''
             SELECT paramsv_param, paramsv_domain, paramsv_desc FROM paramsv
             WHERE paramsv_alg = '{session['algorithm'] if alg_type == 'lm' else session['transformer']}';
-        """
+        '''
         params = connect(params_sql)[0]
 
     info_dict = {}
@@ -157,14 +157,14 @@ def runAlg():
 
     features = data["feat_idxs"]
 
-    def_hyperp_query_str = """
+    def_hyperp_query_str = '''
         SELECT paramsv_default FROM paramsv 
         WHERE paramsv_param = '{}';
-    """
-    dat_info_query = f"""
+    '''
+    dat_info_query = f'''
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_upvals, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
-    """
+    '''
 
     dat_info = connect(dat_info_query)[0]
     dataPath = dat_info[0]
@@ -228,7 +228,7 @@ def runAlg():
         
         counter += 1
 
-    cE_str = f"""
+    cE_str = f'''
     select prun_results from prun
     INNER JOIN prunhv hv on prun_id = hv.prunhv_id
     where prun_lm_alg = '{session['algorithm']}'
@@ -236,7 +236,7 @@ def runAlg():
     and prun_dataset = '{dataset}'
     and prun_feats = '{feats}'
     {sel_str};
-    """
+    '''
 
     print(cE_str)
 
@@ -307,7 +307,7 @@ def runAlg():
         else:
             largest_id = largest_id + 1
         
-        ins_sql = f"""
+        ins_sql = f'''
             INSERT INTO prun (prun_lm_alg, prun_t_alg, prun_dataset, prun_id, prun_results, prun_feats) VALUES
                 (
                     '{session['algorithm']}',
@@ -318,7 +318,7 @@ def runAlg():
                     '{feats}'
                 );
             COMMIT;
-        """
+        '''
 
         # Both this and the next if statement delete default arguments
         # TODO: clean this up, it's so ugly
@@ -341,11 +341,11 @@ def runAlg():
             args_str += ',\n'
             args_str += ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
 
-        ins_sql2 = f"""
+        ins_sql2 = f'''
             INSERT INTO prunhv (prunhv_id, prunhv_name, prunhv_value) VALUES
             {args_str};
             COMMIT;
-        """
+        '''
 
         connect_insert(ins_sql)
         connect_insert(ins_sql2)
