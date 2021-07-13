@@ -51,7 +51,7 @@
             <div class='col-md-10'>
                 <h1 class="pull-left textPrimary"><u>Fairness For All (F4A)</u></h1>
                 <div style="padding:0;" class="col-md-10 textPrimary">
-                   ENTER GOOD INTRO HERE
+                   {{ webtext_dict['intro'] | safe}}
                 </div>
             </div>
             <div class='col-md-2'>
@@ -139,7 +139,7 @@
         <div class='row'>
             <div class='col-md-1'></div>
             <div class='col-md-10' id='results'>
-                <span style="text-decoration: underline;"><h1 class='text-center'>Here are your results:</h1></span>
+                <span style="text-decoration: underline;"><h1 class='resultsHeader text-center'>Here are your results:</h1></span>
             </div>
             <div class='col-md-1'></div>
         </div>
@@ -153,6 +153,8 @@
                             <span id='accuracy'></span>
                             &nbsp; &nbsp;
                             <span id='sd'></span>
+                            &nbsp; &nbsp;
+                            <span id='eo' class='eo'></span>
                         </span>
                     </p>
                 </div>
@@ -174,11 +176,11 @@
             <div class='col-md-1'></div>
             <div class='col-md-10' id='results'>
                 <div class='text-center'>
-                    <h3 style='text-decoration: underline;'>Over 5 Runs, the average predictions are:</h3>
+                    <h3 style='margin: 1rem 0; text-decoration: underline;'>Over 10 Runs, the average predictions are:</h3>
                     <p><span id='p_up'></span></p>
                     <p><span id='p_down'></span></p>
                     <p><span id='u_up'></span></p>
-                    <p><span id='u_down'></span></p>
+                    <p class=noParagraphMargin><span id='u_down'></span></p>
                 </div>
             </div>
             <div class='col-md-1'></div>
@@ -186,7 +188,7 @@
         <hr>
     </div>
 
-    <div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal fade" id="warningModal_backend" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -195,14 +197,46 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-            <div class="modal-body" id='modal-info'></div>
+            <div class="modal-body" id='modal-info_backend_error'></div>
             <div class="modal-footer">
             </div>
             </div>
         </div>
     </div>
 
-    <!-- At some point try to add technical details that are initially collapsed. Here though? Or is it better as a seperate page? -->
+    <div class="modal fade" id="warningModal_zero_positives" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="warningModalLabel">Results Warning</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <div class="modal-body" id='modal-info_zp'></div>
+            <div class="modal-footer">
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="warningModal_bad_tpr" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="warningModalLabel">Results Warning</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <div class="modal-body" id='modal-info_btpr'></div>
+            <div class="modal-footer">
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- At some point try to add technical details that are initially collapsed -->
     <hr id='aboveTechDetails' style='display:none;'>
     <div id='techDetails' style='display:none;'> 
 
