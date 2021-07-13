@@ -2,6 +2,9 @@
 // and slows the page down with a typeset every hover
 var hover_count = 0;
 
+// Force the mobile page to load in landscape
+screen.orientation.lock('landscape');
+
 var table = new Tabulator("#dataVisualizationTable", {
     layout: "fitDataStretch",
     height: "600px",
