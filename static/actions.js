@@ -110,8 +110,18 @@ function makePlot(res, label_str, up_names) {
         title: '% Per Group Predicted to ' + label_str + '/Not '+ label_str,
         legend: {
             x: 0.7,
-            y: 1.1
-        }
+            y: 1.1,
+        },
+        yaxis: {
+            gridcolor: 'C0A95D',
+            zerolinecolor: 'C0A95D'
+        },
+        font: {
+            family: ('Montserrat'),
+            color: ("#f7f7f7")
+        }, 
+        paper_bgcolor: ("#1B1B1B"),
+        plot_bgcolor: ("#1B1B1B"),
     };
 
     // Necessary?
