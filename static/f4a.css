@@ -1,6 +1,6 @@
 :root {
   --primary-color: #F5F5F5;
-  --secondary-color: #A77E58;
+  --secondary-color: #87480d;
   --font-color: #140d08;
   --bg-color: #F5F5F5;
 }
@@ -140,10 +140,10 @@ table {
   display: flex;
   align-items: center;
 
-  em {
+  /* em {
     margin-left: 10px;
     font-size: 1rem;
-  }
+  } */
 }
 .theme-switch {
   display: inline-block;
