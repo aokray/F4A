@@ -36,8 +36,8 @@ class DataHandler:
         self.idxs = np.loadtxt(value, delimiter = self.delimiter)
         self.idxs = self.idxs.astype(int)
         
-        # Temporarily only take first 5 idx sets
-        self.idxs = self.idxs[0:5]
+        # Temporarily only take first 10 idx sets
+        self.idxs = self.idxs[0:10]
 
 
 
@@ -88,6 +88,8 @@ class ResultsHandler:
         all_idxs = np.arange(self.data.dataset.shape[0])
         accs = []
         sds = []
+        rates = []
+        eos = []
         u_ups = []
         u_downs = []
         p_ups = []
@@ -132,7 +134,27 @@ class ResultsHandler:
 
             acc = accuracy_score(label_test, preds)
             sd = np.abs(np.average(preds[p_test_idxs]) - np.average(preds[u_test_idxs]))
-            
+
+            # Calculation of equalized odds
+            # UP class calculation
+            # P(Y_hat = 1 | A = 0, Y=y) y \in {0,1} = |{Y_hat = 1 : A = 0} intersect  {Y = 1 : A = 0}| / |{Y = 1 : A = 0}| + (same with Y=0)
+            up_one_pred_idxs = np.where(preds[u_test_idxs] == 1)[0]
+            up_one_true_idxs = np.where(label_test[u_test_idxs] == 1)[0]
+            up_zero_true_idxs = np.where(label_test[u_test_idxs] == 0)[0]
+            up_tpr = (len(np.intersect1d(up_one_pred_idxs, up_one_true_idxs)) / len(up_one_true_idxs))
+            up_fpr = (len(np.intersect1d(up_one_pred_idxs, up_zero_true_idxs)) / len(up_zero_true_idxs))
+            up_eo = up_tpr + up_fpr
+
+            # P class calculation
+            p_one_pred_idxs = np.where(preds[p_test_idxs] == 1)[0]
+            p_one_true_idxs = np.where(label_test[p_test_idxs] == 1)[0]
+            p_zero_true_idxs = np.where(label_test[p_test_idxs] == 0)[0]
+            p_tpr = (len(np.intersect1d(p_one_pred_idxs, p_one_true_idxs)) / len(p_one_true_idxs))
+            p_fpr = (len(np.intersect1d(p_one_pred_idxs, p_zero_true_idxs)) / len(p_zero_true_idxs))
+            p_eo = p_tpr + p_fpr
+
+            eo = np.abs(up_eo - p_eo)
+
             # Get the number of unprotected classes predicted as the up/down class and the same for the protected class
             U_up = int(np.sum(preds[u_test_idxs] == 1))
             U_down = int(np.sum(preds[u_test_idxs] == 0))
@@ -141,11 +163,13 @@ class ResultsHandler:
 
             accs.append(acc)
             sds.append(sd)
+            rates.append((up_tpr, up_fpr, p_tpr, p_fpr))
+            eos.append(eo)
             u_ups.append(U_up)
             u_downs.append(U_down)
             p_ups.append(P_up)
             p_downs.append(P_down)
             
-        return (acc, sd, np.average(u_ups), np.average(u_downs), np.average(p_ups), np.average(p_downs))
+        return (np.average(accs), np.average(sds), np.average(eos) < 0.03, list(np.round(np.average(rates, axis=0), 5)), np.average(u_ups), np.average(u_downs), np.average(p_ups), np.average(p_downs))
 
 

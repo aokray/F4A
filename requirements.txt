@@ -1,0 +1,4 @@
+# Currently required packages that are NOT provided by all recent Anaconda versions (as of July 2021)
+Flask
+psycopg2
+nptyping

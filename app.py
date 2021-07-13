@@ -10,15 +10,14 @@ from flask import (
     session,
     abort,
 )
-import werkzeug.exceptions as ex
 from utilities.dbUtils import config, connect, connect_insert
 from utilities.make_plots import make_plots
-from sklearn.linear_model import LogisticRegression
+from utilities.startup import on_startup, parse_webtexts
+from utilities.various import getType
 import json
 import numpy as np
-from algorithms.handlers import ResultsHandler, DataHandler
-from algorithms.fair_pca import FairPCA
 from algorithms.algorithm_defaults import alg_defaults
+from algorithms.handlers import ResultsHandler, DataHandler
 
 app = Flask(__name__)
 
@@ -28,18 +27,27 @@ algorithm = None
 transformer = None
 features = None
 
+# TODO: Move some of these into the "index()" function, so once the admin page is set up changes will be picked up on refresh!  
 data_names = connect("SELECT dataset_name, dataset_shortname FROM datasets;")
 alg_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Learning Method';")
 trans_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Transformer' EXCEPT (SELECT 'None');")
 webtext = connect("SELECT * FROM webtext;")
+import_strs = connect("SELECT algv_import_str FROM algv WHERE algv_algname != 'None';")
 
+for i_str in import_strs:
+    exec(i_str[0])
+
+# Run this only when the application starts up
+on_startup()
+
+webtext_dict = parse_webtexts(webtext)
 
 @app.route("/")
 def index():
     connect("SELECT VERSION();")
 
     return render_template(
-        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names #, file={}
+        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, webtext_dict=webtext_dict
     )
 
 
@@ -48,7 +56,7 @@ def admin():
     return render_template("admin.html")
 
 
-@app.route("/dataSelect", methods=["GET", "POST", "PUT"])
+@app.route("/dataSelect", methods=["POST"])
 def dataSelect():
     global dataShortName
     ret = []
@@ -99,9 +107,9 @@ def algSelect():
     if alg_type == 'lm':
         algorithm = alg
     elif alg_type == 'transformer':
-        if alg == 'None':
-            return f'{{"{alg}": {{}}}}'
         transformer = alg
+        if alg == 'None':
+            return f'{{"{alg}": {{}}}}'   
 
     else:
         abort(500, 'Unknown algorithm type passed to the backend, please contact administrator and reload the page.')
@@ -169,7 +177,8 @@ def runAlg():
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
             lm_hyperparams[key] = eval(def_val)
         else:
-            lm_hyperparams[key] = float(lm_hyperparams[key])
+            # TODO: Perhaps this is better to load types from the database in case users try to break stuff?
+            lm_hyperparams[key] = getType(lm_hyperparams[key])(lm_hyperparams[key])
 
     for key, val in transformer_hyperparams.items():
         if val is None or val == '':
@@ -216,6 +225,8 @@ def runAlg():
     {sel_str};
     """
 
+    print(cE_str)
+
     checkExisting = connect(cE_str)
 
     # TODO: Modularize this (further?)
@@ -224,6 +235,8 @@ def runAlg():
         
         ret_val["acc"] = round(results["acc"], 3)
         ret_val["sd"] = round(results["sd"], 3)
+        ret_val['eo'] = results['eo']
+        ret_val['rates'] = results['rates']
         ret_val["U_up"] = results["U_up"]
         ret_val["U_down"] = results["U_down"]
         ret_val["P_up"] = results["P_up"]
@@ -239,7 +252,7 @@ def runAlg():
 
         lm = eval(lm_string + '(**lm_hyperparams)')
         
-        if transformer is not None:
+        if transformer is not None and transformer != 'None':
             transformer_string = transformer.replace(' ', '')
             
             if transformer_string in alg_defaults:
@@ -247,6 +260,7 @@ def runAlg():
 
             t = eval(transformer_string + '(**transformer_hyperparams)')
         else:
+            transformer_string = None
             t = None
 
         try:
@@ -258,10 +272,12 @@ def runAlg():
 
         ret_val["acc"] = 100 * round(results[0], 5)
         ret_val["sd"] = round(results[1], 3)
-        ret_val["U_up"] = results[2]
-        ret_val["U_down"] = results[3]
-        ret_val["P_up"] = results[4]
-        ret_val["P_down"] = results[5]
+        ret_val["eo"] = int(results[2])
+        ret_val["rates"] = results[3]
+        ret_val["U_up"] = results[4]
+        ret_val["U_down"] = results[5]
+        ret_val["P_up"] = results[6]
+        ret_val["P_down"] = results[7]
 
         get_id = "SELECT MAX(prun_id) from prun;";
         largest_id = connect(get_id)[0][0]
@@ -296,7 +312,7 @@ def runAlg():
 
         args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in lm_hyperparams.items())
 
-        if transformer is not None:
+        if transformer is not None and transformer != 'None':
             args_str += ',\n'
             args_str += ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
 
@@ -309,14 +325,10 @@ def runAlg():
         connect_insert(ins_sql)
         connect_insert(ins_sql2)
 
-    # TODO: Clean up this putrid mess
-    ks = list(ret_val.keys())
-    # print('KS--------------------')
-    # print(ks)
-    for idx in range(len(ks) - 2):
-        if idx < 2:
-            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[0].lower()))
-        else:
-            ret_strs.append(res_str.format(ret_val[ks[idx + 2]], sens_names[1].lower()))
+    # Hardcoded in, assuming binary case
+    ret_strs.append(res_str.format(ret_val["P_up"], sens_names[0].lower(), ''))
+    ret_strs.append(res_str.format(ret_val["P_down"], sens_names[0].lower(), 'not '))
+    ret_strs.append(res_str.format(ret_val["U_up"], sens_names[1].lower(), ''))
+    ret_strs.append(res_str.format(ret_val["U_down"], sens_names[1].lower(), 'not '))
 
     return json.dumps([ret_strs, ret_val, {'label_str': label_desc}, {'sens_names': sens_names}])

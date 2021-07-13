@@ -141,3 +141,6 @@ tooltipster-master/
 
 # Make sure min.js stuff isn't included (for now, just Plotly)
 static/*.min.js
+
+# Drop tracking the pictures!
+static/**/*.png

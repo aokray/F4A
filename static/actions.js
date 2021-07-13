@@ -22,7 +22,7 @@ var table = new Tabulator("#dataVisualizationTable", {
             field: "dist",
             hozAlign: "center",
             headerSort: false,
-            headerTooltip: "These images show how the values of one subpopulation relates to another subpopulation",
+            headerTooltip: "These images show how the values of one subpopulation relates to another subpopulation (e.g. how much men pay in one month vs how much women pay in one month). More overlap means the two wubpopulations are more similar.",
             formatter: "image",
             formatterParams: { height: "250px", width: "250px", urlPrefix: "static/", urlSuffix: ".png" },
         },
@@ -113,6 +113,10 @@ $(function () {
                 table.setData(formData);
             },
         });
+
+        $('html, body').animate({
+            scrollTop: $("#dataset").offset().top
+        }, 900);
     });
 });
 
@@ -136,8 +140,6 @@ $(function () {
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
-                console.log('DESC');
-                console.log(desc);
 
                 // Check if the second command is the latex command inf
                 if (domain[2] == 'inf'){
@@ -175,6 +177,11 @@ $(function () {
                 MathJax.typeset();
             },
         });
+
+        // It's lit!
+        $('html, body').animate({
+            scrollTop: $("#addLMParamsHere").offset().top
+        }, 900);
     });
 });
 
@@ -202,8 +209,6 @@ $(function (){
                 // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
-                console.log('DESC');
-                console.log(desc);
 
                 // Check if the second command is the latex command inf
                 if (domain[2] == 'inf'){
@@ -241,6 +246,11 @@ $(function (){
                 MathJax.typeset();
             },
         });
+
+        $('html, body').animate({
+            scrollTop: $("#addTParamsHere").offset().top
+        }, 900);
+
     });
 });
 
@@ -301,12 +311,14 @@ $(document).on("submit", function (e) {
             document.getElementById("results_div").style.display = 'block';
             $("#accuracy").text("Accuracy: " + res["acc"] + "%");
             $("#sd").text("Statistical Disparity: " + res["sd"]);
+            $("#eo").text("Does This Model Approximately Satisfy Equalized Odds? : " + (res['eo'] ? "Yes" : "No"));
+            $("#eo")[0].title ='<p>' + up_names[0] + ':</p><p>Average TPR: ' + res['rates'][0] + '</p><p>Average FPR: ' + res['rates'][1] + '</p><br><p>' + up_names[1] + '</p><p>Average TPR: ' + res['rates'][2] + '</p><p>Average FPR: ' + res['rates'][3] + '</p>';
             $("#p_up").text(res_str[0]);
             $("#p_down").text(res_str[1]);
             $("#u_up").text(res_str[2]);
             $("#u_down").text(res_str[3]);
 
-            $("#modal-info")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted no ' +
+            $("#modal-info_zp")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted no ' +
             up_names[0].toLowerCase() +
             ' or ' +
             up_names[1].toLowerCase() +
@@ -318,17 +330,34 @@ $(document).on("submit", function (e) {
             label_str.toLowerCase() +
             '. Try adding more features and see what happens!';
 
-            if (res['U_up'] == 0 && res['P_up'] == 0) {
-                $("#warningModal").modal('show');
+            $("#modal-info_btpr")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted less than half of those who should  ' +
+            label_str.toLowerCase() +
+            ', in one group or the other, actually will. If you still see a high accuracy, it is because the model is predicted many false positives (people in the opposite situation) correctly. ' +
+            'This is because the problem is "inbalanced", meaning more people will not '+ 
+            label_str.toLowerCase() + 
+            ' , as opposed to those that should predicted to ' +
+            label_str.toLowerCase() + '.'
+            ;
+
+            if (res['U_up'] <= 1 && res['P_up'] <= 1) {
+                $("#warningModal_zero_positives").modal('show');
+            }
+
+            if(res['rates'][0] < 0.5 || res['rates'][2] < 0.5) {
+                $("#warningModal_bad_tpr").modal('show');
             }
 
             makePlot(res, label_str, up_names);
+
+            $('html, body').animate({
+                scrollTop: $("#results").offset().top
+            }, 900);
         },
         error: function(request, status, error) {
             $("#runModel").prop('disabled', false);
             document.getElementById("loading").style.display = 'none';
-            console.log(request);
-            alert(new DOMParser().parseFromString(request.responseText, "text/html").documentElement.lastChild.lastElementChild.textContent);
+            $('#modal-info_backend_error')[0].innerHTML = new DOMParser().parseFromString(request.responseText, "text/html").documentElement.lastChild.lastElementChild.textContent;
+            $("#warningModal_backend").modal('show');
         }
     });
     document.getElementById("loading").style.display = 'block';
@@ -352,5 +381,10 @@ $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
 
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
     $(this).tooltipster();
+    $(this).tooltipster('show');
+});
+
+$('body').on('mouseover mouseenter', '.eo', function(){
+    $(this).tooltipster({contentAsHTML: true});
     $(this).tooltipster('show');
 });
