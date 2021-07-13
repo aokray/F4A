@@ -1,5 +1,7 @@
 body {
   background-color: #1B1B1B;
+  font-family: 'Montserrat', sans-serif;
+  color: #f7f7f7;
 }
 
 h1 {
@@ -7,9 +9,37 @@ h1 {
   font-weight: 500;
 }
 
-div {
-  font-family: 'Montserrat', sans-serif;
-}  
+ #warningModalLabel, #modal-info_btpr, #modal-info_backend_error {
+  color: #1B1B1B
+}
+
+.noParagraphMargin {
+  margin-bottom: 0;
+}
+
+.resultsHeader {
+  margin-bottom: 1rem;
+  margin-top: -1rem;
+}
+
+.tabulator-tableHolder {
+  background-color: #1B1B1B;
+  color: #f7f7f7;
+}
+
+.tabulator-cell {
+  background-color: #1B1B1B;
+  color: #f7f7f7;
+}
+
+.tabulator-col-title {
+  background-color: #1B1B1B;
+  color: #f7f7f7;
+}
+
+.tabulator-col {
+  background: #1B1B1B !important;
+}
 
 .textPrimary {
   color: #f7f7f7;
