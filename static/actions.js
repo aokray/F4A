@@ -9,6 +9,7 @@ if (currentTheme) {
 
     if (currentTheme === 'dark') {
         toggleSwitch.checked = true;
+        document.getElementById("f4a_logo").src = 'static/f4a_logo_gold.png';
     }
 }
 
@@ -22,7 +23,34 @@ function switchTheme(e) {
         document.documentElement.setAttribute('data-theme', 'light');
         localStorage.setItem('theme', 'light');
         document.getElementById("f4a_logo").src = 'static/f4a_logo.png';
-    }    
+    }
+
+    // WARNING: DO NOT ADD A CLASS TO THE PLOTLY CONTAINER WITHOUT CHANGING THIS
+    // Hacky workaround to see if a graph is presently rendered,
+    // the addPlotHere div only has a class after a plotly graph is rendered in it
+    if ($("#addPlotHere")[0].classList.length) {
+        var graphLoc = document.getElementById('addPlotHere');
+        var style = getComputedStyle(document.body);
+
+        var grid_color = style.getPropertyValue('--plot-grid-color');
+        var text_color = style.getPropertyValue('--font-color');
+        var background_color = style.getPropertyValue('--primary-color');
+
+        var layout_update = {
+            yaxis: {
+                gridcolor: grid_color,
+                zerolinecolor: grid_color
+            },
+            font: {
+                family: 'Montserrat',
+                color: text_color
+            }, 
+            paper_bgcolor: background_color,
+            plot_bgcolor: background_color
+        }
+
+        Plotly.relayout(graphLoc, layout_update);
+    }
 }
 
 toggleSwitch.addEventListener('change', switchTheme, false);
@@ -87,6 +115,13 @@ function makePlot(res, label_str, up_names) {
     var up_tot = u_up + p_up;
     var down_tot = u_down + p_down;
 
+    var style = getComputedStyle(document.body);
+
+    // The values below are from the CSS
+    var grid_color = style.getPropertyValue('--plot-grid-color');
+    var text_color = style.getPropertyValue('--font-color');
+    var background_color = style.getPropertyValue('--primary-color');
+
     plotLoc = document.getElementById('addPlotHere');
 
     var data1 = {
@@ -113,18 +148,18 @@ function makePlot(res, label_str, up_names) {
             y: 1.1,
         },
         yaxis: {
-            gridcolor: 'C0A95D',
-            zerolinecolor: 'C0A95D'
+            gridcolor: grid_color,
+            zerolinecolor: grid_color
         },
         font: {
-            family: ('Montserrat'),
-            color: ("#f7f7f7")
+            family: 'Montserrat',
+            color: text_color
         }, 
-        paper_bgcolor: ("#1B1B1B"),
-        plot_bgcolor: ("#1B1B1B"),
+        paper_bgcolor: background_color,
+        plot_bgcolor: background_color
     };
 
-    // Necessary?
+    // TODO: Necessary?
     var config = {
         responsive: true
     };

@@ -3,6 +3,7 @@
   --secondary-color: #87480d;
   --font-color: #140d08;
   --bg-color: #F5F5F5;
+  --plot-grid-color: #AAAAAA;
 }
 
 [data-theme='dark'] {
@@ -10,6 +11,7 @@
   --secondary-color: #C0A95D;
   --font-color: #fefff6;
   --bg-color: #1B1B1B;
+  --plot-grid-color: #C0A95D;
 }
 
 body {
@@ -23,8 +25,20 @@ h1 {
   font-weight: 500;
 }
 
- #warningModalLabel, #modal-info_btpr, #modal-info_backend_error {
-  color: var(--font-color)
+ #warningModalLabel, #modal-info_btpr, #modal-info_backend_error{
+  color: var(--font-color);
+  background-color: var(--bg-color);
+}
+
+.close, .modal-dialog, .modal-header, .modal-footer{
+  color: var(--font-color);
+  background-color: var(--bg-color);
+}
+
+/* Change this */
+.btn:hover, .btn:disabled {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .noParagraphMargin {
