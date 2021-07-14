@@ -56,6 +56,7 @@ class ResultsHandler:
         scaler: Type[TransformerMixin] = MinMaxScaler((0,1)),
         # Requires a .fit() or .fit_transform() method to "train" the transformer, and a .transform() method to transform new data
         transformer: Type[TransformerMixin] = None,
+        needs_idxs: bool = False
     ):
         self.predictor = predictor
         self.data = data
@@ -64,6 +65,7 @@ class ResultsHandler:
         self.feats = feats
         self.scaler = scaler
         self.transformer = transformer
+        self.needs_idxs = needs_idxs
 
     def get_results(self):
         if not hasattr(self.predictor, 'predict'):
@@ -126,7 +128,11 @@ class ResultsHandler:
                 sample_train = self.transformer.transform(sample_train)
                 sample_test = self.transformer.transform(sample_test)
 
-            self.predictor.fit(sample_train, label_train)
+            if (self.needs_idxs):
+                self.predictor.fit(sample_train, label_train, u_train_idxs, p_train_idxs)
+            else:
+                self.predictor.fit(sample_train, label_train)
+            
             preds = self.predictor.predict(sample_test)
 
             u_test_idxs = np.where(sample[idx_row_test,self.sens_idx] == u_value)[0]

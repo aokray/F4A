@@ -17,7 +17,11 @@ INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
 VALUES ('K Neighbors Classifier', true, 'Learning Method', 'from sklearn.neighbors import KNeighborsClassifier');
 
-INSERT INTO paramsv VALUES ('K Neighbors Classifier', 'n_neighbors', '(0,n)', 3, 'n_neigbors dictates how many neigboring points are used to predict the new label of a new instance, with maximum value n being the size of the dataset. It is usually set between 1 and ~50, depending on the size of the dataset.');
+INSERT INTO paramsv VALUES ('K Neighbors Classifier', 'n_neighbors', '(0,n)', '3', 'n_neigbors dictates how many neigboring points are used to predict the new label of a new instance, with maximum value n being the size of the dataset. It is usually set between 1 and ~50, depending on the size of the dataset.');
+
+INSERT INTO algv
+(algv_algname, algv_params, algv_type, algv_import_str)
+VALUES ('Limited Attribute Effect Regression', false, 'Learning Method', 'from algorithms.limited_attr_effect import LimitedAttributeEffectRegression');
 
 INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)

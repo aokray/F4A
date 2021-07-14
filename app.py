@@ -115,6 +115,7 @@ def dataSelect():
 def algSelect():
     alg_type = request.args.get('alg_type')
     alg = request.args.get('alg')
+    info_dict = {}
 
     if alg_type == 'lm':
         session['algorithm'] = alg
@@ -138,10 +139,9 @@ def algSelect():
         '''
         params = connect(params_sql)[0]
 
-    info_dict = {}
-    info_dict['param'] = params[0]
-    info_dict['domain'] = params[1]
-    info_dict['desc'] = params[2]
+        info_dict['param'] = params[0]
+        info_dict['domain'] = params[1]
+        info_dict['desc'] = params[2]
 
     return f'{{"{alg}": {json.dumps(info_dict)}}}'
 
@@ -263,6 +263,14 @@ def runAlg():
         if lm_string in alg_defaults:
             lm_hyperparams.update(alg_defaults[lm_string])
 
+        if lm_string == 'FairKernelLearning':
+            p_idxs = np.where(np.array(features) == (sens_idx - 1))[0]
+
+            if len(p_idxs):
+                lm_hyperparams['sens_idxs'] = p_idxs
+            else:
+                abort(500, 'To use the learning method "Fair Kernel Learning", you MUST include the sensitive attribute in the features you choose.')
+
         lm = eval(lm_string + '(**lm_hyperparams)')
         
         if session['transformer'] is not None and session['transformer'] != 'None':
@@ -285,7 +293,7 @@ def runAlg():
             t = None
 
         try:
-            results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t).get_results()
+            results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t, needs_idxs = True if lm_string == 'LimitedAttributeEffectRegression' else False).get_results()
         except Exception as e:
             # Simply returns a 500 error and spits out the exception the learning method returns - not great
             # TODO: make the error codes MUCH better (DB table maybe?)
@@ -326,6 +334,9 @@ def runAlg():
             for key, val in alg_defaults[lm_string].items():
                 del lm_hyperparams[key]
 
+            if lm_string == 'FairKernelLearning':
+                del lm_hyperparams['sens_idxs']
+
         if session['transformer'] is not None:
             if transformer_string in alg_defaults:
                 for key, val in alg_defaults[transformer_string].items():
@@ -347,8 +358,13 @@ def runAlg():
             COMMIT;
         '''
 
+        print(ins_sql)
+        print(ins_sql2)
+
         connect_insert(ins_sql)
-        connect_insert(ins_sql2)
+        
+        if len(args_str):
+            connect_insert(ins_sql2)
 
     # Hardcoded in, assuming binary case
     ret_strs.append(res_str.format(ret_val["P_up"], sens_names[0].lower(), ''))
