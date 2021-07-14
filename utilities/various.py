@@ -56,3 +56,22 @@ def checkInBounds(domain, value, method, arg_dict = None):
             raise Exception('The value you enter for the '+ method +' hyperparameter must be less than or equal to ' + str(vals[1]) + ', because the "]" symbol in the valid values means the value you enter must be less than or equal to ' + str(vals[1]) + '.')
     else:
         raise Exception('Unknown bounding character "' + r_paren + '".')
+
+
+# Return true if all is good, false otherwise
+def checkTypeHierarchy(true_type, rec_type):
+    print(true_type)
+    print(true_type == 'float')
+    print(rec_type)
+    print(rec_type in ['float', 'int'])
+    if true_type == 'float':
+        if rec_type in ['float', 'int']:
+            return True
+    elif true_type == 'int':
+        if rec_type == 'int':
+            return True
+    elif true_type == 'str':
+        if rec_type == 'str':
+            return True
+    
+    return False

@@ -11,13 +11,13 @@ INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
 VALUES('Logistic Regression', true, 'Learning Method', 'from sklearn.linear_model import LogisticRegression');
 
-INSERT INTO paramsv VALUES ('Logistic Regression', 'C', '(0,inf)', '1', 'C is a "regularizer", basically determining how smooth the decision function is. Usually it is set between 0.001 and 10, with smaller values being harsher penalization.');
+INSERT INTO paramsv VALUES ('Logistic Regression', 'C', '(0,inf)', 'float', '1', 'C is a "regularizer", basically determining how smooth the decision function is. Usually it is set between 0.001 and 10, with smaller values being harsher penalization.');
 
 INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
 VALUES ('K Neighbors Classifier', true, 'Learning Method', 'from sklearn.neighbors import KNeighborsClassifier');
 
-INSERT INTO paramsv VALUES ('K Neighbors Classifier', 'n_neighbors', '(0,n)', '3', 'n_neigbors dictates how many neigboring points are used to predict the new label of a new instance, with maximum value n being the size of the dataset. It is usually set between 1 and ~50, depending on the size of the dataset.');
+INSERT INTO paramsv VALUES ('K Neighbors Classifier', 'n_neighbors', '(0,n)', 'int', '3', 'n_neigbors dictates how many neigboring points are used to predict the new label of a new instance, with <i>integer</i> maximum value n being the size of the dataset. It is usually set between 1 and ~50, depending on the size of the dataset.');
 
 INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
@@ -27,13 +27,13 @@ INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
 VALUES ('Fair PCA', true, 'Transformer', 'from algorithms.fair_pca import FairPCA');
 
-INSERT INTO paramsv VALUES ('Fair PCA', 'd', '(0,r)', 'int(r / 2)', 'd is the reduced number of features Fair PCA will construct, with maximum value r being less than the number of features you choose above.');
+INSERT INTO paramsv VALUES ('Fair PCA', 'd', '(0,r)', 'int', 'np.ceil(r / 2)', 'd is the reduced <i>integer</i> number of features Fair PCA will construct, with maximum value r being less than the number of features you choose above.');
 
 INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
 VALUES ('Geometric Fair Representation', true, 'Transformer', 'from algorithms.geo_fair import GeometricFairRepresentation');
 
-INSERT INTO paramsv VALUES ('Geometric Fair Representation', 'lmbda', '[0,1]', '0', '$\lambda$ is the fairness relaxation parameter, where 0 = fairness constraint is totally enforced, 1 = fairness constraint is not enforced at all.');
+INSERT INTO paramsv VALUES ('Geometric Fair Representation', 'lmbda', '[0,1]', 'float', '0', '$\lambda$ is the fairness relaxation parameter, where 0 = fairness constraint is totally enforced, 1 = fairness constraint is not enforced at all.');
 
 -- Crappy (hopefully) temp workaround
 INSERT INTO algv

@@ -249,20 +249,20 @@ $(function () {
                     // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
                     for (i = 0; i < 1; i++) {
                         $("#addLMParamsHere").append(
-                            "<p><span class='lm_tooltip' title='" +
+                            "<p><span class='lm_tooltip hyperParam' title='" +
                                 desc +
                                 "'>" +
                                 param +
-                                ' </span><input type="text" id="' +
+                                '   </span><input type="text" id="' +
                                 param +
                                 '" name="lm_hyperp">' +
-                                " Valid Values: $" +
+                                "<span class='hyperParam'>   Valid Values: $" +
                                 l_bracket +
                                 domain[0] +
                                 ',' +
                                 domain[1] +
                                 r_bracket +
-                                "$</p><br/>"
+                                "$</span></p><br/>"
                         );
                     }
                 }
@@ -332,20 +332,20 @@ $(function (){
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
                 for (i = 0; i < 1; i++) {
                     $("#addTParamsHere").append(
-                        "<p><span class='t_tooltip' title='" +
+                        "<p><span class='t_tooltip hyperParam' title='" +
                             desc + 
                             "'>$" +
                             print_param +
-                            '$ </span><input type="text" id="' +
+                            '$   </span><input type="text" id="' +
                             param +
                             '" name="t_hyperp">' +
-                            " Valid Values: $" +
+                            "<span class='hyperParam'>   Valid Values: $" +
                             l_bracket +
                             domain[0] +
                             ',' +
                             domain[1] +
                             r_bracket +
-                            "$</p><br/>"
+                            "$</span></p><br/>"
                     );
                 }
 
@@ -436,6 +436,7 @@ $(document).on("submit", function (e) {
             label_str.toLowerCase() +
             '. Try adding more features and see what happens!';
 
+            /*
             $("#modal-info_btpr")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted less than half of those who should  ' +
             label_str.toLowerCase() +
             ', in one group or the other, actually will. If you still see a high accuracy, it is because the model is predicted many false positives (people in the opposite situation) correctly. ' +
@@ -444,14 +445,17 @@ $(document).on("submit", function (e) {
             ' , as opposed to those that should predicted to ' +
             label_str.toLowerCase() + '.'
             ;
+            */
 
             if (res['U_up'] <= 1 && res['P_up'] <= 1) {
                 $("#warningModal_zero_positives").modal('show');
             }
 
+            /*
             if(res['rates'][0] < 0.5 || res['rates'][2] < 0.5) {
                 $("#warningModal_bad_tpr").modal('show');
             }
+            */
 
             makePlot(res, label_str, up_names);
 

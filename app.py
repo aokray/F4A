@@ -13,7 +13,7 @@ from flask import (
 from utilities.dbUtils import config, connect, connect_insert
 from utilities.make_plots import make_plots
 from utilities.startup import on_startup, parse_webtexts
-from utilities.various import getType, checkInBounds
+from utilities.various import getType, checkInBounds, checkTypeHierarchy
 import json
 import os
 import numpy as np
@@ -122,6 +122,8 @@ def algSelect():
     elif alg_type == 'transformer':
         session['transformer'] = alg
         if alg == 'None':
+            if alg_type in session['params']:
+                del session['params'][alg_type]
             return f'{{"{alg}": {{}}}}'   
 
     else:
@@ -166,6 +168,14 @@ def runAlg():
         SELECT paramsv_default FROM paramsv 
         WHERE paramsv_param = '{}';
     '''
+
+    #Sloppy? Yes. Easier for a July 15th release? oh yeah.
+    # TODO: Merge this and the above query
+    hyperp_type_str = '''
+        SELECT paramsv_type FROM paramsv
+        WHERE paramsv_param = '{}';
+    '''
+
     dat_info_query = f'''
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_upvals, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
@@ -188,20 +198,37 @@ def runAlg():
     # r = reduced # of features
     r = len(features)
 
+    if features is None or features == []:
+        abort(500, 'You must select at least one feature in the checklist above.')
+    else:
+        feats = "{"
+        ready = [str(x) + "," for x in features]
+        for elem in ready:
+            feats += elem
+
+        feats = feats[:-1] + str("}") if len(feats) > 2 else feats + str("}")
+
     for key, val in lm_hyperparams.items():
+        hyperp_type = connect(hyperp_type_str.format(key))[0][0]
+        if val != '' and not checkTypeHierarchy(str(hyperp_type), getType(lm_hyperparams[key]).__name__):
+            abort(500, 'Expected type ' + hyperp_type + ', instead recieved type ' + getType(lm_hyperparams[key]).__name__ + '. Please enter a value for the learning method hyperparameter with type ' + hyperp_type + '.')
+
         if val is None or val == '':
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
-            lm_hyperparams[key] = eval(def_val)
+            lm_hyperparams[key] = eval(hyperp_type + '(' + def_val + ')')
         else:
-            # TODO: Perhaps this is better to load types from the database in case users try to break stuff?
-            lm_hyperparams[key] = getType(lm_hyperparams[key])(lm_hyperparams[key])
+            lm_hyperparams[key] = eval(hyperp_type)(lm_hyperparams[key])
 
     for key, val in transformer_hyperparams.items():
+        hyperp_type = connect(hyperp_type_str.format(key))[0][0]
+        if val != '' and not checkTypeHierarchy(hyperp_type, getType(transformer_hyperparams[key]).__name__):
+            abort(500, 'Expected type ' + hyperp_type + ', instead recieved type ' + getType(transformer_hyperparams[key]).__name__ + '. Please enter a value for the transformer hyperparameter with type ' + hyperp_type + '.')
+
         if val is None or val == '':
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
-            transformer_hyperparams[key] = eval(def_val)
+            transformer_hyperparams[key] = eval(hyperp_type + '(' + def_val + ')')
         else:
-            transformer_hyperparams[key] = getType(transformer_hyperparams[key])(transformer_hyperparams[key])
+            transformer_hyperparams[key] = eval(hyperp_type)(transformer_hyperparams[key])
 
     # Before almost everything, make sure the hyperparamter configuration is acceptable
     if 'lm' in session['params']:
@@ -215,17 +242,6 @@ def runAlg():
             checkInBounds(session['params']['transformer']['domain'], transformer_hyperparams[session['params']['transformer']['param']], session['algorithm'], {'n': n, 'p': p, 'r': r})
         except Exception as e:
             abort(500, e)
-
-    if features is None or features == []:
-        abort(500, 'You must select at least one feature in the checklist above.')
-    else:
-        feats = "{"
-        ready = [str(x) + "," for x in features]
-        for elem in ready:
-            feats += elem
-
-        feats = feats[:-1] + str("}") if len(feats) > 2 else feats + str("}")
-
 
     # TODO: try to clean this up, but something like this is necessary as the project enters multiple hyperparameter territory
     sel_str = ''

@@ -25,7 +25,7 @@ h1 {
   font-weight: 500;
 }
 
- #warningModalLabel, #modal-info_btpr, #modal-info_backend_error{
+ #warningModalLabel, #modal-info_btpr, #modal-info_zp, #modal-info_backend_error{
   color: var(--font-color);
   background-color: var(--bg-color);
 }
@@ -94,6 +94,10 @@ h1 {
   bottom: 2vh;
   right: 1vw;
   z-index: 1;
+}
+
+.hyperParam {
+  white-space: pre;
 }
 
 hr {
