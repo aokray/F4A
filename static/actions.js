@@ -1,4 +1,9 @@
-var hyperp_info = {};
+// At the very least, cannot be declared in the function because on each hover it resets the counter
+// and slows the page down with a typeset every hover
+var hover_count = 0;
+
+// Force the mobile page to load in landscape
+screen.orientation.lock('landscape');
 
 const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 
@@ -177,8 +182,11 @@ $(function () {
             timeout: 0,
             data: $("#dataset").serialize(),
             success: function (data) {
-                // $("#dataVisCheckpoint").find("tr:gt(0)").remove();
-                formData = JSON.parse(data);
+                all_data = JSON.parse(data);
+                formData = all_data['formData'];
+                sens_name = all_data['sens_name'];
+
+                $('#sens_feature_info')[0].innerHTML = 'Sensitive Feature: ' + sens_name;
 
                 var dict_keys = Object.keys(formData);
 
@@ -201,51 +209,65 @@ $(function () {
             url: "/algSelect?alg=" + document.getElementById('algorithm').value + '&alg_type=lm',
             data: $("#algorithm").serialize(),
             success: function (data) {
-                var algData = JSON.parse(data);
-
-                var alg = Object.keys(algData);
-
-                var params_data = algData[alg];
-
-                var param = params_data['param'];
-
-                // Actually an array
-                var domain = params_data['domain'];
-                var desc = params_data['desc'];
-
-                // Check if the second command is the latex command inf
-                if (domain[2] == 'inf'){
-                    domain[2] = '\\' + domain[2];
-                }
-
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
                 $("#addLMParamsHere")[0].innerHTML = "";
 
-                $("#addLMParamsHere").append(
-                    "<br/><p>Optional Hyperparameter(s) for " +
-                        $("#algorithm").val() +
-                        " are:<br/>"
-                );
+                var algData = JSON.parse(data);
 
-                // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
-                for (i = 0; i < 1; i++) {
+                var alg = Object.keys(algData);
+
+                if (alg.length) {
+                    var params_data = algData[alg];
+
+                    var param = params_data['param'];
+
+                    var domain = params_data['domain'];
+                    var desc = params_data['desc'];
+
+                    var l_bracket = domain.slice(0,1);
+                    var dom = domain.slice(1, domain.length-1);
+                    var r_bracket = domain.slice(domain.length-1, domain.length);
+                    domain = dom.split(',');
+
+                    // Check if the second command is the latex command inf
+                    if (domain[1] == 'inf') {
+                        domain[1] = '\\' + domain[1];
+                    }
+
+                // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
+                //  before adding a new hyperparameter section
+                // $("#addLMParamsHere")[0].innerHTML = "";
+
+                
                     $("#addLMParamsHere").append(
-                        "<p><span class='lm_tooltip' title='" +
-                            desc +
-                            "'>" +
-                            param +
-                            ' </span><input type="text" id="' +
-                            param +
-                            '" name="lm_hyperp">' +
-                            " Range: $(" +
-                            domain[0] +
-                            ',' +
-                            domain[1] +
-                            ")$</p><br/>"
+                        "<br/><p>Optional Hyperparameter(s) for " +
+                            $("#algorithm").val() +
+                            ":<br/>"
                     );
-                }
 
+                    // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
+                    for (i = 0; i < 1; i++) {
+                        $("#addLMParamsHere").append(
+                            "<p><span class='lm_tooltip' title='" +
+                                desc +
+                                "'>" +
+                                param +
+                                ' </span><input type="text" id="' +
+                                param +
+                                '" name="lm_hyperp">' +
+                                " Valid Values: $" +
+                                l_bracket +
+                                domain[0] +
+                                ',' +
+                                domain[1] +
+                                r_bracket +
+                                "$</p><br/>"
+                        );
+                    }
+                }
+                // TODO: Why is THIS necessary here?
+                hover_count = 0;
                 MathJax.typeset();
             },
         });
@@ -277,14 +299,24 @@ $(function (){
                 var params_data = algData[alg];
 
                 var param = params_data['param'];
+                var print_param = null;
+                if (param == 'lmbda') {
+                    print_param = '\\' + param;
+                } else {
+                    print_param = param;
+                }
 
-                // Actually an array
                 var domain = params_data['domain'];
                 var desc = params_data['desc'];
 
+                var l_bracket = domain.slice(0,1);
+                var dom = domain.slice(1, domain.length-1);
+                var r_bracket = domain.slice(domain.length-1, domain.length);
+                domain = dom.split(',');
+
                 // Check if the second command is the latex command inf
-                if (domain[2] == 'inf'){
-                    domain[2] = '\\' + domain[2];
+                if (domain[1] == 'inf'){
+                    domain[1] = '\\' + domain[1];
                 }
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
@@ -294,7 +326,7 @@ $(function (){
                 $("#addTParamsHere").append(
                     "<br/><p>Optional Hyperparameter(s) for " +
                         $("#transformer").val() +
-                        " are:<br/>"
+                        ":<br/>"
                 );
 
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
@@ -302,23 +334,25 @@ $(function (){
                     $("#addTParamsHere").append(
                         "<p><span class='t_tooltip' title='" +
                             desc + 
-                            "'>" +
-                            param +
-                            ' </span><input type="text" id="' +
+                            "'>$" +
+                            print_param +
+                            '$ </span><input type="text" id="' +
                             param +
                             '" name="t_hyperp">' +
-                            " Range: $(" +
+                            " Valid Values: $" +
+                            l_bracket +
                             domain[0] +
                             ',' +
                             domain[1] +
-                            ")$</p><br/>"
+                            r_bracket +
+                            "$</p><br/>"
                     );
                 }
 
                 MathJax.typeset();
             },
         });
-
+        hover_count = 0;
         $('html, body').animate({
             scrollTop: $("#addTParamsHere").offset().top
         }, 900);
@@ -432,7 +466,11 @@ $(document).on("submit", function (e) {
             $("#warningModal_backend").modal('show');
         }
     });
+
     document.getElementById("loading").style.display = 'block';
+    $('html, body').animate({
+        scrollTop: $("#loading").offset().top
+    }, 900);
 });
 
 $(document).ready(function () {
@@ -451,9 +489,16 @@ $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
     $(this).tooltipster('show');
 });
 
+
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
+    hover_count++;
+
     $(this).tooltipster();
     $(this).tooltipster('show');
+
+    if (hover_count < 2) {
+        MathJax.typeset();
+    }
 });
 
 $('body').on('mouseover mouseenter', '.eo', function(){

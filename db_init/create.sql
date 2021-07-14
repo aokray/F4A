@@ -42,7 +42,7 @@ CREATE TABLE algv (
 CREATE TABLE paramsv (
     paramsv_alg TEXT NOT NULL,
     paramsv_param TEXT NOT NULL, -- Not null, no alg. MUST be loaded in this table but any that is must have a hyperparameter associated
-    paramsv_domain TEXT[], -- NUll allowable, some hyperp's are L1 vs L2 loss which is a learning method setting, NOT a numerical value
+    paramsv_domain TEXT, -- NUll allowable, some hyperp's are L1 vs L2 loss which is a learning method setting, NOT a numerical value
     paramsv_default TEXT NOT NULL,    
     paramsv_desc TEXT
 );

@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tooltipster-master/dist/css/tooltipster.bundle.min.css') }}" />
     <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='f4a.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,16 +28,23 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     
     <script>
-        // HAS to be here for some reason
+        // Has to be *here* for some reason
+        // MathJax_Preview necessary to make this work in chrome.
         MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
             macros: {
-                inf: "\\infty"
+                inf: "\\infty",
+                lmbda: "\\lambda"
             }
           },
           svg: {
             fontCache: 'global'
+          },
+          styles: {
+              '.MathJax_Preview': {
+                  display: 'contents'
+              }
           }
         };
     </script>
@@ -77,17 +85,18 @@
         <div class='row'>
             <div class='col-md-1'></div>
             <div class='col-md-2 textPrimary'>
-                Select a data set to begin:
+                Select a data set:
 
                 <br/>
                 <form action='/dataSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary" name='dataset' id="dataset">
+                    <select class="textPrimary backgroundPrimary form-control" name='dataset' id="dataset">
                         <option disabled selected value>-- Select a value --</option>
                         {% for dataset in dataset_names %}
                             <option value="{{ dataset[1] }}">{{ dataset[0] }}</option>
                         {% endfor %}
                     </select>
                 </form>
+                <span id='sens_feature_info'></span>
             </div>
 
             <div class='col-md-8'>
@@ -100,10 +109,10 @@
         <div class='row'>
             <div class='col-md-3'></div>
             <div class='col-md-1 textPrimary'>
-                Select an algorithm to use:
+                Select a learning method:
                 <br/>
                 <form action='/algSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary" id='algorithm' name='algorithm'>
+                    <select class="textPrimary backgroundPrimary form-control" id='algorithm' name='algorithm'>
                         <option disabled selected value>-- Select a value --</option>
                         {% for alg in algorithm_names %}
                             <option value="{{ alg[0] }}">{{ alg[0] }}</option>
@@ -113,11 +122,11 @@
             </div>
             <div class='col-md-3'></div>
             <div class='col-md-1 textPrimary'>
-                Optionally, select a transformer to use:
+                (Optional): Select a transformer:
                 <br/>
                 <form action='/transformerSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary" id='transformer' name='transformer'>
-                        <option disabled value>-- Select a value --</option>
+                    <select class="textPrimary backgroundPrimary form-control" id='transformer' name='transformer'>
+                        <!--option disabled value>-- Select a value --</option-->
                         <option selected>None</option>
                         {% for trans in transformer_names %}
                             <option value="{{ trans[0] }}">{{ trans[0] }}</option>
@@ -131,8 +140,9 @@
 
     <div class='text-center' id='submitButton' style='padding-top: 2%;'>
         <form id='paramsInputs' name='paramsInputs' action='/runAlg' method='POST'>
-            <p class='textPrimary'>Please note: Once submitted, the process <i>may</i> take some time to
-                complete. Please do not reload and resubmit until it's finished.</p>
+            <p class='textPrimary'><b>Please note:</b> Once submitted, the process <i>may</i> take some time to
+                complete. Even if you've seen the loading wheel for several minutes, the server is running your request.
+                Please do not reload and resubmit until it's finished.</p>
 
             <div class='textPrimary' id='addLMParamsHere'></div>
             <div class='textPrimary' id='addTParamsHere'></div>
