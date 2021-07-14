@@ -137,55 +137,62 @@ $(function () {
             url: "/algSelect?alg=" + document.getElementById('algorithm').value + '&alg_type=lm',
             data: $("#algorithm").serialize(),
             success: function (data) {
-                var algData = JSON.parse(data);
-
-                var alg = Object.keys(algData);
-
-                var params_data = algData[alg];
-
-                var param = params_data['param'];
-
-                var domain = params_data['domain'];
-                var desc = params_data['desc'];
-
-                var l_bracket = domain.slice(0,1);
-                var dom = domain.slice(1, domain.length-1);
-                var r_bracket = domain.slice(domain.length-1, domain.length);
-                domain = dom.split(',');
-
-                // Check if the second command is the latex command inf
-                if (domain[1] == 'inf') {
-                    domain[1] = '\\' + domain[1];
-                }
-
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
                 $("#addLMParamsHere")[0].innerHTML = "";
 
-                $("#addLMParamsHere").append(
-                    "<br/><p>Optional Hyperparameter(s) for " +
-                        $("#algorithm").val() +
-                        ":<br/>"
-                );
+                var algData = JSON.parse(data);
 
-                // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
-                for (i = 0; i < 1; i++) {
+                var alg = Object.keys(algData);
+
+                if (alg.length) {
+                    var params_data = algData[alg];
+
+                    var param = params_data['param'];
+
+                    var domain = params_data['domain'];
+                    var desc = params_data['desc'];
+
+                    var l_bracket = domain.slice(0,1);
+                    var dom = domain.slice(1, domain.length-1);
+                    var r_bracket = domain.slice(domain.length-1, domain.length);
+                    domain = dom.split(',');
+
+                    // Check if the second command is the latex command inf
+                    if (domain[1] == 'inf') {
+                        domain[1] = '\\' + domain[1];
+                    }
+
+                // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
+                //  before adding a new hyperparameter section
+                // $("#addLMParamsHere")[0].innerHTML = "";
+
+                
                     $("#addLMParamsHere").append(
-                        "<p><span class='lm_tooltip' title='" +
-                            desc +
-                            "'>" +
-                            param +
-                            ' </span><input type="text" id="' +
-                            param +
-                            '" name="lm_hyperp">' +
-                            " Valid Values: $" +
-                            l_bracket +
-                            domain[0] +
-                            ',' +
-                            domain[1] +
-                            r_bracket +
-                            "$</p><br/>"
+                        "<br/><p>Optional Hyperparameter(s) for " +
+                            $("#algorithm").val() +
+                            ":<br/>"
                     );
+
+                    // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
+                    for (i = 0; i < 1; i++) {
+                        $("#addLMParamsHere").append(
+                            "<p><span class='lm_tooltip' title='" +
+                                desc +
+                                "'>" +
+                                param +
+                                ' </span><input type="text" id="' +
+                                param +
+                                '" name="lm_hyperp">' +
+                                " Valid Values: $" +
+                                l_bracket +
+                                domain[0] +
+                                ',' +
+                                domain[1] +
+                                r_bracket +
+                                "$</p><br/>"
+                        );
+                    }
                 }
                 // TODO: Why is THIS necessary here?
                 hover_count = 0;

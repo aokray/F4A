@@ -13,7 +13,7 @@ from flask import (
 from utilities.dbUtils import config, connect, connect_insert
 from utilities.make_plots import make_plots
 from utilities.startup import on_startup, parse_webtexts
-from utilities.various import getType
+from utilities.various import getType, checkInBounds
 import json
 import os
 import numpy as np
@@ -46,6 +46,7 @@ def index():
     session['algorithm'] = None
     session['transformer'] = None
     session['features'] = None
+    session['params'] = {}
     # print(connect("SELECT VERSION();"))
 
     return render_template(
@@ -80,7 +81,6 @@ def dataSelect():
     hdists = query[1]
     feat_names = [x.strip() for x in feats.split(",")]
     sens_idx_query = connect(sens_sql)
-    print(sens_idx_query)
     sens_idx = int(sens_idx_query[0][0]) - 1
     full_ret['sens_name'] = feat_names[sens_idx]
 
@@ -129,7 +129,7 @@ def algSelect():
 
     
     isParams = connect(
-        "SELECT algv_params FROM algv WHERE algv_algname = '" + session['algorithm'] + "';"
+        "SELECT algv_params FROM algv WHERE algv_algname = '" + (session['algorithm'] if alg_type == 'lm' else session['transformer']) + "';"
     )[0][0]
 
     if isParams:
@@ -142,6 +142,11 @@ def algSelect():
         info_dict['param'] = params[0]
         info_dict['domain'] = params[1]
         info_dict['desc'] = params[2]
+
+        session['params'][alg_type] = {'param': params[0], 'domain': params[1]}
+    else:
+        if alg_type in session['params']:
+            del session['params'][alg_type]
 
     return f'{{"{alg}": {json.dumps(info_dict)}}}'
 
@@ -183,8 +188,6 @@ def runAlg():
     # r = reduced # of features
     r = len(features)
 
-    # Temporary measure - only allow real numbers to be hyperparameters, e.g. no changing loss function from L1 to L2
-    # Use of eval() begins to unravel this measure
     for key, val in lm_hyperparams.items():
         if val is None or val == '':
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
@@ -200,7 +203,19 @@ def runAlg():
         else:
             transformer_hyperparams[key] = getType(transformer_hyperparams[key])(transformer_hyperparams[key])
 
+    # Before almost everything, make sure the hyperparamter configuration is acceptable
+    if 'lm' in session['params']:
+        try:
+            checkInBounds(session['params']['lm']['domain'], lm_hyperparams[session['params']['lm']['param']], session['algorithm'], {'n': n, 'p': p, 'r': r})
+        except Exception as e:
+            abort(500, e)
     
+    if 'transformer' in session['params']:
+        try:
+            checkInBounds(session['params']['transformer']['domain'], transformer_hyperparams[session['params']['transformer']['param']], session['algorithm'], {'n': n, 'p': p, 'r': r})
+        except Exception as e:
+            abort(500, e)
+
     if features is None or features == []:
         abort(500, 'You must select at least one feature in the checklist above.')
     else:
@@ -262,14 +277,6 @@ def runAlg():
         # Set lm and transformer vars
         if lm_string in alg_defaults:
             lm_hyperparams.update(alg_defaults[lm_string])
-
-        if lm_string == 'FairKernelLearning':
-            p_idxs = np.where(np.array(features) == (sens_idx - 1))[0]
-
-            if len(p_idxs):
-                lm_hyperparams['sens_idxs'] = p_idxs
-            else:
-                abort(500, 'To use the learning method "Fair Kernel Learning", you MUST include the sensitive attribute in the features you choose.')
 
         lm = eval(lm_string + '(**lm_hyperparams)')
         
@@ -349,7 +356,8 @@ def runAlg():
         args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in lm_hyperparams.items())
 
         if session['transformer'] is not None and session['transformer'] != 'None':
-            args_str += ',\n'
+            if len(lm_hyperparams.items()):
+                args_str += ',\n'
             args_str += ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
 
         ins_sql2 = f'''
@@ -357,9 +365,6 @@ def runAlg():
             {args_str};
             COMMIT;
         '''
-
-        print(ins_sql)
-        print(ins_sql2)
 
         connect_insert(ins_sql)
         
