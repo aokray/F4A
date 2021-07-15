@@ -60,10 +60,6 @@ def checkInBounds(domain, value, method, arg_dict = None):
 
 # Return true if all is good, false otherwise
 def checkTypeHierarchy(true_type, rec_type):
-    print(true_type)
-    print(true_type == 'float')
-    print(rec_type)
-    print(rec_type in ['float', 'int'])
     if true_type == 'float':
         if rec_type in ['float', 'int']:
             return True
