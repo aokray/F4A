@@ -13,7 +13,7 @@
     <link rel="icon" type="image/FILE_EXT" href="{{ url_for('static', filename='favicon_gold.ico') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tooltipster-master/dist/css/tooltipster.bundle.min.css') }}" />
-    <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator_simple.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='f4a.css') }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 
@@ -57,7 +57,9 @@
     <div class='container-fluid'>
         <div class='row'>
             <div class='col-md-10'>
-                <h1 class="pull-left textPrimary"><u>Fairness For All (F4A)</u></h1>
+                <div style='display:inline;'>
+                    <span style="white-space: pre;"><h1 class="pull-left textPrimary" style='display:inline;'><u>Fairness For All (F4A)</u></h1>  <span class='textFootnote' style='display:inline;'>v{{ version }}</span></span>
+                </div>
                 <div style="padding:0;" class="col-md-10 textPrimary">
                    {{ webtext_dict['intro'] | safe}}
                 </div>
@@ -67,7 +69,6 @@
             </div>
         </div>
     </div>
-
     <hr/>
 
     <div class='container-fluid'>
@@ -100,7 +101,7 @@
             </div>
 
             <div class='col-md-8'>
-                <div id='dataVisualizationTable'></div>
+                <div class='table-bordered' id='dataVisualizationTable'></div>
             </div>
         </div>
 
@@ -173,9 +174,9 @@
                         <span class='bordered'>
                             <span id='accuracy'></span>
                             &nbsp; &nbsp;
-                            <span id='sd'></span>
+                            <span class='statDisp' id='sd'></span>
                             &nbsp; &nbsp;
-                            <span id='eo' class='eo'></span>
+                            <span class='eqOdds' id='eo'></span>
                         </span>
                     </p>
                 </div>

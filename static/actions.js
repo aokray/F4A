@@ -3,7 +3,7 @@
 var hover_count = 0;
 
 // Force the mobile page to load in landscape
-screen.orientation.lock('landscape');
+// screen.orientation.lock('landscape');
 
 const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 
@@ -237,9 +237,7 @@ $(function () {
 
                 // Possibly just a workaround - just ensure that the hyperparameter div is absolutely empty
                 //  before adding a new hyperparameter section
-                // $("#addLMParamsHere")[0].innerHTML = "";
-
-                
+                // $("#addLMParamsHere")[0].innerHTML = "";                    
                     $("#addLMParamsHere").append(
                         "<br/><p>Optional Hyperparameter(s) for " +
                             $("#algorithm").val() +
@@ -249,14 +247,14 @@ $(function () {
                     // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
                     for (i = 0; i < 1; i++) {
                         $("#addLMParamsHere").append(
-                            "<p><span class='lm_tooltip hyperParam' title='" +
+                            "<p class='hyperParam'><span class='lm_tooltip' title='" +
                                 desc +
                                 "'>" +
                                 param +
                                 '   </span><input type="text" id="' +
                                 param +
                                 '" name="lm_hyperp">' +
-                                "<span class='hyperParam'>   Valid Values: $" +
+                                "<span>   Valid Values: $" +
                                 l_bracket +
                                 domain[0] +
                                 ',' +
@@ -332,14 +330,14 @@ $(function (){
                 // TODO: expand to allow more than one hyperp by adjusting return format and parsing methodology
                 for (i = 0; i < 1; i++) {
                     $("#addTParamsHere").append(
-                        "<p><span class='t_tooltip hyperParam' title='" +
+                        "<p class='hyperParam'><span class='t_tooltip' title='" +
                             desc + 
                             "'>$" +
                             print_param +
                             '$   </span><input type="text" id="' +
                             param +
                             '" name="t_hyperp">' +
-                            "<span class='hyperParam'>   Valid Values: $" +
+                            "<span>   Valid Values: $" +
                             l_bracket +
                             domain[0] +
                             ',' +
@@ -418,7 +416,15 @@ $(document).on("submit", function (e) {
             $("#accuracy").text("Accuracy: " + res["acc"] + "%");
             $("#sd").text("Statistical Disparity: " + res["sd"]);
             $("#eo").text("Does This Model Approximately Satisfy Equalized Odds? : " + (res['eo'] ? "Yes" : "No"));
-            $("#eo")[0].title ='<p>' + up_names[0] + ':</p><p>Average TPR: ' + res['rates'][0] + '</p><p>Average FPR: ' + res['rates'][1] + '</p><br><p>' + up_names[1] + '</p><p>Average TPR: ' + res['rates'][2] + '</p><p>Average FPR: ' + res['rates'][3] + '</p>';
+
+            // It's time to t-t-t-t-t-t-tooltip!
+            $('.statDisp').tooltipster({contentAsHTML: true});
+            $('.statDisp').tooltipster('content', '<p>Statistical disparity is a naive approach to fairness; it only measures the difference between the percent of ' + up_names[0].toLowerCase() + 's and ' + up_names[1].toLowerCase() + 's predicted to ' + label_str.toLowerCase() + '</p>');
+            $('.eqOdds').tooltipster({contentAsHTML: true});
+            $('.eqOdds').tooltipster('content', '<p>' + up_names[0] + ':</p><p>Average TPR: ' + res['rates'][0] + '</p><p>Average FPR: ' + res['rates'][1] + '</p><br><p>' + up_names[1] + '</p><p>Average TPR: ' + res['rates'][2] + '</p><p>Average FPR: ' + res['rates'][3] + '</p>');
+
+
+            // $("#eo")[0].title ='<p>' + up_names[0] + ':</p><p>Average TPR: ' + res['rates'][0] + '</p><p>Average FPR: ' + res['rates'][1] + '</p><br><p>' + up_names[1] + '</p><p>Average TPR: ' + res['rates'][2] + '</p><p>Average FPR: ' + res['rates'][3] + '</p>';
             $("#p_up").text(res_str[0]);
             $("#p_down").text(res_str[1]);
             $("#u_up").text(res_str[2]);
@@ -436,6 +442,7 @@ $(document).on("submit", function (e) {
             label_str.toLowerCase() +
             '. Try adding more features and see what happens!';
 
+            // Re-enable these at some point?
             /*
             $("#modal-info_btpr")[0].innerHTML = 'Uh oh! Be wary of these results, your model has predicted less than half of those who should  ' +
             label_str.toLowerCase() +
@@ -475,12 +482,12 @@ $(document).on("submit", function (e) {
     $('html, body').animate({
         scrollTop: $("#loading").offset().top
     }, 900);
+    $("#sd")[0].title = "";
 });
 
 $(document).ready(function () {
     $('.tooltipst').tooltipster({
         content: $('<div>THIS IS THE LOGO!</div>'),
-        // Doesn't work :(
         theme: 'tooltipster-punk'
     });
 });
@@ -489,7 +496,7 @@ $(document).ready(function () {
 // This garbage is needed for tooltips on dynamically created content.
 // TODO: figure out how to make this work for n hyperparameters (altho probably just hardcoding in 2-3 is fine)
 $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
-    $(this).tooltipster();
+    $(this).tooltipster({contentAsHTML: true});
     $(this).tooltipster('show');
 });
 
@@ -497,15 +504,10 @@ $('body').on('mouseover mouseenter', '.lm_tooltip', function(){
 $('body').on('mouseover mouseenter', '.t_tooltip', function(){
     hover_count++;
 
-    $(this).tooltipster();
+    $(this).tooltipster({contentAsHTML: true});
     $(this).tooltipster('show');
 
     if (hover_count < 2) {
         MathJax.typeset();
     }
-});
-
-$('body').on('mouseover mouseenter', '.eo', function(){
-    $(this).tooltipster({contentAsHTML: true});
-    $(this).tooltipster('show');
 });

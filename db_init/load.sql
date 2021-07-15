@@ -35,7 +35,7 @@ VALUES ('Geometric Fair Representation', true, 'Transformer', 'from algorithms.g
 
 INSERT INTO paramsv VALUES ('Geometric Fair Representation', 'lmbda', '[0,1]', 'float', '0', '$\lambda$ is the fairness relaxation parameter, where 0 = fairness constraint is totally enforced, 1 = fairness constraint is not enforced at all.');
 
--- Crappy (hopefully) temp workaround
+-- Crappy(?) (hopefully) temp workaround
 INSERT INTO algv
 (algv_algname, algv_params, algv_type, algv_import_str)
 VALUES('None', false, 'Transformer', '');
@@ -43,17 +43,20 @@ VALUES('None', false, 'Transformer', '');
 -- This is the text the website will load, edit this if you care to do so.
 -- Multiline strings in postgres are weird, see https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS
 INSERT INTO webtext VALUES ('intro',
-'<p>Machine learning and artificial intelligence (both terms will fall under the abbreviation of ML throughout this website) are being used in many places in the world today, but perhaps most importantly they are being used in impactful decision making settings. '
-'What this means is that the predictions an ML model makes are being utilized in a way that directly effects people live''s, which is incredibly concerning given the amount of social bias that''s been shown to be present in the ML predictions. '
+'<p>Machine learning and artificial intelligence (both terms will fall under the abbreviation of ML throughout this website) are used in many places in the world today, but perhaps most importantly they are being used in impactful decision making settings. '
+'This means that ML model predictions are being utilized in a way that directly effects people live''s, and this is concerning given the amount of social bias that''s been shown to be present in the ML predictions. '
 'The most famous example of this is in ProPublica''s revolutionary article <a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing">Machine Bias</a> which demonstrated that the recedivism (if a person will re-offend) prediction algorithm COMPAS exhibited racial bias, giving african-american defendants higher risk '
-'scores of re-offending than it gave to their white counterparts, even when white defendents had more prior offenses. This effect has been seen again and again, '
+'scores of re-offending than it gave to their white counterparts, even when white defendents had more prior offenses. There are many examples of similar occurences, '
 'such as in the (since disabled) <a href="https://www.reuters.com/article/us-amazon-com-jobs-automation-insight/amazon-scraps-secret-ai-recruiting-tool-that-showed-bias-against-women-idUSKCN1MK08G">Amazon hiring algorithm</a> '
 'that preferred men over women applicants, or in the algorithm that <a href="https://www.scientificamerican.com/article/racial-bias-found-in-a-major-health-care-risk-algorithm/">gave white patients more time with doctors '
 'than black patients</a>.</p>'
-'<p>The question of <i>why</i> ML is biased is more complicated. "Why can''t we just remove the protected feature(s)?" is the most common thought, but sadly the problem is more complicated than this. ML can actually determine the gender/race/eduction level/etc. '
-'of a person without having that information explicitly. For example, in "<a href="https://ojs.aaai.org/index.php/ICWSM/article/view/14320">Inferring Gender from the Content of Tweets: A Region Specific Example</a>" the authors demonstrate they can predict a twitter user''s gender from only tweets with 80% accuracy! '
-'Another way of saying this is that the features (or combinations of the features) in a dataset are <i>correlated</i> with the protected attribute, so simply removing the race/gender/education level/etc. is not enough to prevent potential discrimination.</p>'
-'<p style="margin-bottom:0">This has all led to the creation of the field of Fair ML, a whole field of researchers trying to discover new ways to make computational systems more fair for all people. This website is a way to demonstrate the difficulties of the problem, while also providing '
-'a way for people to explore and learn about it for themselves! The interactive website below allows you to try and train a fair model on a selection of datasets that have a sensitive attribute (e.g. race, gender) to make fair predictions/decisions. '
-'If you''re new to ML, there is some information below this on terminology and basic ML information; or if you''re more experienced and curious about the technical details, feel free to check out the technical details section at the bottom. Have fun exploring!</p>'
+'<p>So <i>why</i> are ML models biased? The basic reasons are: 1.) data can encode biases (e.g. if less women apply for tech jobs at a company, implicit sexism can be encoded in the data), 2.) ML '
+'methods tend to prefer majority classes by virtue of their construction, and 3.) ML methods don''t "explore", so to an ML system past patterns are predictive of future patterns. For more information a good '
+'starting place is <a href="https://arxiv.org/abs/1810.08810">The Frontiers of Fairness in Machine Learning</a>. This website exists to try and educate people about the problem, while also '
+'demonstrating some useful concepts around how researchers think about "fairness". If you see a term that''s confusing, hover over it and a tooltip should appear to help out or explain in more depth. Have fun experimenting!'
+'<h4>Website Guide</h4>'
+'<ol><li>Select dataset, then choose features by clicking the checkboxes. (Some models require the sensitive attribute, others don''t - a notification will appear if this happens).</li>'
+'<li>Select a learning method, then optionally a transformer. Either enter a value in the boxes that appear, or leave them blank for defaults to be used.</li>'
+'<li>Submit the model - fair warning, this may take up to several minutes in the extreme cases.</li>'
+'<li>Try again! Try out different combinations of datasets, features, methods, and hyperparameter values.</li>'
 );

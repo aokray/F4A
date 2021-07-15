@@ -1,9 +1,12 @@
 :root {
-  --primary-color: #F5F5F5;
+  --primary-color: #fcfcfc;
   --secondary-color: #87480d;
   --font-color: #140d08;
-  --bg-color: #F5F5F5;
+  --bg-color: #fcfcfc;
   --plot-grid-color: #AAAAAA;
+  --hover-color: #5c3715;
+  --disabled-color: #46301c;
+  --loader-back: #A6A2A2;
 }
 
 [data-theme='dark'] {
@@ -12,6 +15,9 @@
   --font-color: #fefff6;
   --bg-color: #1B1B1B;
   --plot-grid-color: #C0A95D;
+  --hover-color: #97854b;
+  --disabled-color: #645b3b;
+  --loader-back: #A6A2A2;
 }
 
 body {
@@ -25,7 +31,7 @@ h1 {
   font-weight: 500;
 }
 
- #warningModalLabel, #modal-info_btpr, #modal-info_zp, #modal-info_backend_error{
+#warningModalLabel, #modal-info_btpr, #modal-info_zp, #modal-info_backend_error{
   color: var(--font-color);
   background-color: var(--bg-color);
 }
@@ -36,9 +42,17 @@ h1 {
 }
 
 /* Change this */
-.btn:hover, .btn:disabled {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+.btn:hover {
+  background-color: var(--hover-color);
+  border-color: var(--hover-color);
+}
+
+.btn:active, .btn.active.focus, .btn.active:focus,  .btn:disabled, button[disabled], button:disabled, 
+.btn-success:disabled, .btn-success.active.focus, .btn-success.active:focus, .btn-success.active:hover, .btn-success:active.focus, .btn-success:active:focus, .btn-success:active:hover {
+  background-color: var(--disabled-color) !important;
+  border-color: var(--disabled-color) !important;
+  box-shadow: var(--disabled-color) !important;
+  outline: var(--disabled-color) !important;
 }
 
 .noParagraphMargin {
@@ -71,6 +85,11 @@ h1 {
 
 .textPrimary {
   color:  var(--font-color);
+}
+
+.textFootnote {
+  color: var(--secondary-color);
+  font-size: 8pt;
 }
 
 .backgroundPrimary {
@@ -108,8 +127,9 @@ hr {
     
 }
 
+/* Does this control anything? */
 table, th, td {
-  border: 1px solid black;
+  border: 1px solid var(--secondary-color);
 }
 
 .graph {
@@ -124,8 +144,8 @@ table {
 
 /* Basic loading circle, copied from W3 */
 .loader {
-  border: 16px solid #f3f3f3; /* Light grey */
-  border-top: 16px solid #3498db; /* Blue */
+  border: 16px solid var(--loader-back); 
+  border-top: 16px solid var(--secondary-color);
   border-radius: 50%;
   width: 120px;
   height: 120px;
@@ -197,7 +217,8 @@ table {
 }
 
 input:checked + .slider {
-  background-color: #66bb6a;
+  /* background-color: #66bb6a; */
+  background-image: url('starry_sky.jpg');
 }
 
 input:checked + .slider:before {

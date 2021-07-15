@@ -19,6 +19,7 @@ import os
 import numpy as np
 from algorithms.algorithm_defaults import alg_defaults
 from algorithms.handlers import ResultsHandler, DataHandler
+from _version import __version__ as app_version
 
 app = Flask(__name__)
 
@@ -47,10 +48,9 @@ def index():
     session['transformer'] = None
     session['features'] = None
     session['params'] = {}
-    # print(connect("SELECT VERSION();"))
 
     return render_template(
-        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, webtext_dict=webtext_dict
+        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, webtext_dict=webtext_dict, version=app_version
     )
 
 
