@@ -183,8 +183,8 @@
                 Select a data set:
 
                 <br/>
-                <form action='/dataSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary form-control" style='width:auto;' name='dataset' id="dataset">
+                <form action='/dataSelect' style='width:auto;' method='POST'>
+                    <select class="textPrimary backgroundPrimary form-control" name='dataset' id="dataset">
                         <option disabled selected value>-- Select a value --</option>
                         {% for dataset in dataset_names %}
                             <option value="{{ dataset[1] }}">{{ dataset[0] }}</option>
@@ -202,12 +202,12 @@
         <hr>
 
         <div class='row'>
-            <div class='col-md-3'></div>
-            <div class='col-md-1 textPrimary'>
+            <div class='col-md-2'></div>
+            <div class='col-md-2 textPrimary'>
                 <span style='width:auto;'>Select a learning method:</span>
                 <br/>
-                <form action='/algSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary form-control" style='width:auto;' id='algorithm' name='algorithm'>
+                <form action='/algSelect' style='width:auto;' method='POST'>
+                    <select class="textPrimary backgroundPrimary form-control" id='algorithm' name='algorithm'>
                         <option disabled selected value>-- Select a value --</option>
                         {% for alg in algorithm_names %}
                             <option value="{{ alg[0] }}">{{ alg[0] }}</option>
@@ -215,12 +215,12 @@
                     </select>
                 </form>
             </div>
-            <div class='col-md-3'></div>
-            <div class='col-md-1 textPrimary'>
+            <div class='col-md-2'></div>
+            <div class='col-md-2 textPrimary'>
                 <span style='width:auto;'>(Optional): Select a transformer:</span>
                 <br/>
-                <form action='/transformerSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary form-control" style='width:auto;' id='transformer' name='transformer'>
+                <form action='/transformerSelect' style='width:auto;' method='POST'>
+                    <select class="textPrimary backgroundPrimary form-control" id='transformer' name='transformer'>
                         <!--option disabled value>-- Select a value --</option-->
                         <option selected>None</option>
                         {% for trans in transformer_names %}
