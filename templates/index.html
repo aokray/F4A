@@ -10,7 +10,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
-    <link rel="icon" type="image/FILE_EXT" href="{{ url_for('static', filename='favicon_gold.ico') }}">
+    <link rel="icon" type="image/FILE_EXT" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tooltipster-master/dist/css/tooltipster.bundle.min.css') }}" />
     <link href="{{ url_for('static', filename='tabulator-master/dist/css/tabulator_simple.min.css') }}" rel="stylesheet">
@@ -68,6 +68,100 @@
                 <img style="float:right;" id='f4a_logo' src="{{ url_for('static', filename='f4a_logo.png') }}" class="topright rounded-circle tooltipst">
             </div>
         </div>
+        <div class='row'>
+            <div class='col-md-10'>
+                <!-- Basic example adapted from https://getbootstrap.com/docs/4.0/components/collapse/ -->
+                <div id="accordion">
+                    <div class="card">
+                      <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            What is Machine Learning?
+                          </button>
+                        </h5>
+                      </div>
+                  
+                      <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                        <div class="card-body">
+                            <p><b>Disclaimer:</b>This isn't a perfect introduction to ML, and only briefly discusses the small portion the website touches.</p>
+                            <p>
+                                <u>Terminology</u>:
+                                <ol>
+                                    <li>Feature = attribute in a dataset, e.g. in student data 1 feature could be GPA.</li>
+                                    <li>Sensitive attribute/feature = feature that contains protected information, e.g. race, gender, education level, ...</li>
+                                </ol> 
+                            </p>
+                            <p>
+                                This website focuses primarily on two aspects of ML - <i>learning methods</i> and <i>transformers</i>. Learning methods seek
+                                to find a pattern in the data, and often times we find it useful to make predictions on new, unseen data. The learning methods
+                                this website is concerned with are called <i>classifiers</i> (specifically, supervised classifiers) - this means the data 
+                                has all the outcomes recorded, and all the outcomes are essentially "Yes/No" answers. An example is a supervised classifier
+                                trained on previous student data (such as age, attendance rate, GPA, with the outcome = Class Passed/Not Passed), then 
+                                trying to predict if new students will pass based on their current age, attendance rate, and GPA. 
+                            </p>
+                            <p>
+                                Transformers are more complicated, but very useful. In the previous example, the dataset was small (3 features) - imagine modern
+                                data, where we have dozens, hundreds, or even thousands of features like age, attendance rate, GPA, ... As the size of the data grows,
+                                we run into a problem - it takes a long time to train a learning method, and they can get lost in the noise in the dataset. This is where
+                                transformers come in - they reduce the size of the data, but keep significant portions of information. This can make learning methods
+                                more accurate, or at the very least less likely to fit noise in the data.
+                            </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header" id="headingTwo">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Fairness Metrics
+                          </button>
+                        </h5>
+                      </div>
+                      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                        <div class="card-body">
+                            <p>This website uses two metrics (measurements) of fairness - statistical disparity, and equalized odds.</p>
+                            <p>
+                                <u>Statistical Disparity (SD)</u>: SD measures the difference in positive predictions between classes. For example, 
+                                if a learning method is making predictions on who should recieve a loan, the SD would be the percent of men who
+                                recieved a loan MINUS the percent of women who recieved a loan. In a perfect world, this would be zero. However,
+                                in any given finite dataset it's very unlikely to be zero. The more likely explanation is that the learning method
+                                predicted little to no men or women should recieve loans at all. This does metric does not comment on how fair the surrounding society/system is, and should not be utilized as such.
+                            </p>
+                            <p>
+                                <u>Equalized Odds (EO)</u>: EO seeks to ensure balance in the <i>true positive rates</i> and <i>false positive rates</i> of groups.
+                                This is best explained with an example - assume we are predicting people who should be hired, and the sensitive attribute is gender.
+                                Equalized odds seeks to ensure that equal proportions of qualified men and qualified women are hired, while also making sure that
+                                equal proportions of unqualified men are NOT hired and unqualified women are NOT hired. This is a more powerful metric than SD,
+                                because even when there are less applicants from one group (e.g. less male applicants), then as long as equal proportions of 
+                                qualified men and women are hired AND equal proportions of unqualified people between genders are NOT hired, then
+                                the algorithm is deemed fair. This does metric does not comment on how fair the surrounding society/system is, and should not be utilized as such.
+                                For more information, see <a href="https://ttic.uchicago.edu/~nati/Publications/HardtPriceSrebro2016.pdf" target='_blank'>Equality of Opportunity in Supervised Learning</a>.
+                            </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header" id="headingThree">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            What makes F4A Unique?
+                          </button>
+                        </h5>
+                      </div>
+                      <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                        <div class="card-body">
+                            <p>
+                                F4A is unique primarily because it's (to my knowledge) one of the first interactive fair machine learning education tools available.
+                                It's also unique because all these models are being run in <i>real time</i>, and the results are being stored in a database. This means
+                                that these computationally expensive operations only have to be run once ever, then the results are stored for future lookup! As a result,
+                                each user that visits makes the site just a little bit faster for the next user that comes.
+                            </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
     </div>
     <hr/>
 
@@ -90,7 +184,7 @@
 
                 <br/>
                 <form action='/dataSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary form-control" name='dataset' id="dataset">
+                    <select class="textPrimary backgroundPrimary form-control" style='width:auto;' name='dataset' id="dataset">
                         <option disabled selected value>-- Select a value --</option>
                         {% for dataset in dataset_names %}
                             <option value="{{ dataset[1] }}">{{ dataset[0] }}</option>
@@ -110,10 +204,10 @@
         <div class='row'>
             <div class='col-md-3'></div>
             <div class='col-md-1 textPrimary'>
-                Select a learning method:
+                <span style='width:auto;'>Select a learning method:</span>
                 <br/>
                 <form action='/algSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary form-control" id='algorithm' name='algorithm'>
+                    <select class="textPrimary backgroundPrimary form-control" style='width:auto;' id='algorithm' name='algorithm'>
                         <option disabled selected value>-- Select a value --</option>
                         {% for alg in algorithm_names %}
                             <option value="{{ alg[0] }}">{{ alg[0] }}</option>
@@ -123,10 +217,10 @@
             </div>
             <div class='col-md-3'></div>
             <div class='col-md-1 textPrimary'>
-                (Optional): Select a transformer:
+                <span style='width:auto;'>(Optional): Select a transformer:</span>
                 <br/>
                 <form action='/transformerSelect' method='POST'>
-                    <select class="textPrimary backgroundPrimary form-control" id='transformer' name='transformer'>
+                    <select class="textPrimary backgroundPrimary form-control" style='width:auto;' id='transformer' name='transformer'>
                         <!--option disabled value>-- Select a value --</option-->
                         <option selected>None</option>
                         {% for trans in transformer_names %}

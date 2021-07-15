@@ -195,7 +195,7 @@ $(function () {
         });
 
         $('html, body').animate({
-            scrollTop: $("#dataset").offset().top
+            scrollTop: $("#dataset").offset().top - 20
         }, 900);
     });
 });
@@ -272,7 +272,7 @@ $(function () {
 
         // It's lit!
         $('html, body').animate({
-            scrollTop: $("#addLMParamsHere").offset().top
+            scrollTop: $("#addLMParamsHere").offset().top - 20
         }, 900);
     });
 });
@@ -352,7 +352,7 @@ $(function (){
         });
         hover_count = 0;
         $('html, body').animate({
-            scrollTop: $("#addTParamsHere").offset().top
+            scrollTop: $("#addTParamsHere").offset().top - 20
         }, 900);
 
     });
@@ -480,7 +480,7 @@ $(document).on("submit", function (e) {
 
     document.getElementById("loading").style.display = 'block';
     $('html, body').animate({
-        scrollTop: $("#loading").offset().top
+        scrollTop: $("#loading").offset().top - 20
     }, 900);
     $("#sd")[0].title = "";
 });
