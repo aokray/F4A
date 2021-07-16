@@ -44,7 +44,7 @@ VALUES('None', false, 'Transformer', '');
 -- Multiline strings in postgres are weird, see https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS
 INSERT INTO webtext VALUES ('intro',
 '<p>Machine learning and artificial intelligence (both terms will fall under the abbreviation of ML throughout this website) are used in many places in the world today, but perhaps most importantly they are being used in impactful decision making settings. '
-'This means that ML model predictions are being utilized in a way that directly effects people live''s, and this is concerning given the amount of social bias that''s been shown to be present in the ML predictions. '
+'This means that ML model predictions are being utilized in a way that directly effects people''s lives, and this is concerning given the amount of social bias that''s been shown to be present in the ML predictions. '
 'The most famous example of this is in ProPublica''s revolutionary article <a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank">Machine Bias</a> which demonstrated that the recedivism (if a person will re-offend) prediction algorithm COMPAS exhibited racial bias, giving african-american defendants higher risk '
 'scores of re-offending than it gave to their white counterparts, even when white defendents had more prior offenses. There are many examples of similar occurences, '
 'such as in the (since disabled) <a href="https://www.reuters.com/article/us-amazon-com-jobs-automation-insight/amazon-scraps-secret-ai-recruiting-tool-that-showed-bias-against-women-idUSKCN1MK08G" target="_blank">Amazon hiring algorithm</a> '

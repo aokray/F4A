@@ -487,8 +487,7 @@ $(document).on("submit", function (e) {
 
 $(document).ready(function () {
     $('.tooltipst').tooltipster({
-        content: $('<div>THIS IS THE LOGO!</div>'),
-        theme: 'tooltipster-punk'
+        contentAsHTML: true
     });
 });
 
