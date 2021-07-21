@@ -3,7 +3,7 @@
 </p>
 
 # F4A
-A website to help explain fair machine learning (video demonstration incoming).
+A website to help explain fair machine learning (video demonstration incoming). The website is deployed! Check it out at [http://f4a.okray.ml](http://f4a.okray.ml)
 
 # Table of Contents
 - [Setup](#setup-instructions) 
