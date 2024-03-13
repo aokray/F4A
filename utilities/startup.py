@@ -29,7 +29,9 @@ def on_startup():
             sample = data[:,0:-1]
             
             sens_attr = [x.strip() for x in sensnames.split(',')]
-            os.makedirs('static/' + shortname)
+            if not os.path.exists(os.path.join('static/', shortname)):
+                os.makedirs(os.path.join('static/', shortname))
+
             make_plots(sample, shortname, featnames, sensidx-1, upvals[1], upvals[0], sens_attr[1], sens_attr[0])
 
 def parse_webtexts(select_str):

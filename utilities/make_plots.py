@@ -88,7 +88,7 @@ def make_plots(sample, datasetName, feat_descs, sens_idx, p_value, u_value, p_la
 
         plt.legend([u_label, p_label])
 
-        plt.savefig('static/' + str(datasetName) +  '/' + str(datasetName) + str(i) + '.png', figsize=(19.2, 10.8), dpi=1000)
+        plt.savefig('static/' + str(datasetName) +  '/' + str(datasetName) + str(i) + '.png', dpi=1000)
         ax.clear()
         plt.clf()
         ax = None
