@@ -87,12 +87,12 @@
                             <p>
                                 <u>Terminology</u>:
                                 <ol>
-                                    <li>Feature = attribute in a dataset, e.g. in student data 1 feature could be GPA.</li>
+                                    <li>Feature = attribute in a dataset, e.g. in student data, one example feature could be the student's GPA.</li>
                                     <li>Sensitive attribute/feature = feature that contains protected information, e.g. race, gender, education level, ...</li>
                                 </ol> 
                             </p>
                             <p>
-                                This website focuses primarily on two aspects of ML - <i>learning methods</i> and <i>transformers</i>. Learning methods seek
+                                This website focuses primarily on two aspects of ML - <i>learning methods</i> and <i>embedding methods</i>. Learning methods seek
                                 to find a pattern in the data, and often times we find it useful to make predictions on new, unseen data. The learning methods
                                 this website is concerned with are called <i>classifiers</i> (specifically, supervised classifiers) - this means the data 
                                 has all the outcomes recorded, and all the outcomes are essentially "Yes/No" answers. An example is a supervised classifier
@@ -100,11 +100,11 @@
                                 trying to predict if new students will pass based on their current age, attendance rate, and GPA. 
                             </p>
                             <p>
-                                Transformers are more complicated, but very useful. In the previous example, the dataset was small (3 features) - imagine modern
+                                Embedding methods are more complicated, but very useful. In the previous example for learning methods, the dataset was small (3 features) - imagine modern
                                 data, where we have dozens, hundreds, or even thousands of features like age, attendance rate, GPA, ... As the size of the data grows,
                                 we run into a problem - it takes a long time to train a learning method, and they can get lost in the noise in the dataset. This is where
-                                transformers come in - they reduce the size of the data, but keep significant portions of information. This can make learning methods
-                                more accurate, or at the very least less likely to fit noise in the data.
+                                embedding methods come in - they reduce the size of the data by learning how to intelligently reduce the size of the data, while also keeping significant amounts of information.
+                                This can make subsequent learning methods more accurate, fair, or at the very least less likely to fit noise in the data.
                             </p>
                         </div>
                       </div>
@@ -125,7 +125,7 @@
                                 if a learning method is making predictions on who should recieve a loan, the SD would be the percent of men who
                                 recieved a loan MINUS the percent of women who recieved a loan. In a perfect world, this would be zero. However,
                                 in any given finite dataset it's very unlikely to be zero. The more likely explanation is that the learning method
-                                predicted little to no men or women should recieve loans at all. This does metric does not comment on how fair the surrounding society/system is, and should not be utilized as such.
+                                predicted little to no men or women should recieve loans at all. This metric does not comment on how fair the surrounding society/system is, and should not be utilized as such.
                             </p>
                             <p>
                                 <u>Equalized Odds (EO)</u>: EO seeks to ensure balance in the <i>true positive rates</i> and <i>false positive rates</i> of groups.
@@ -155,7 +155,7 @@
                                 (among similar tools made by <a href="https://cloud.google.com/blog/products/ai-machine-learning/building-ml-models-for-everyone-understanding-fairness-in-machine-learning" target='_blank'>Google</a> 
                                 and <a href="https://aif360.res.ibm.com/" target='_blank'>IBM</a>).
                                 It's also unique because all these models are being run in <i>real time</i>, and the results are being stored in a database. This means
-                                that these computationally expensive operations only have to be run once ever, then the results are stored for future lookup! As a result,
+                                that these computationally expensive operations only have to be run once <i>ever</i>, then the results are stored for future lookup! As a result,
                                 each user that visits makes the site just a little bit faster for the next user that comes. This site is also open-source, and as such is always a work in progress.
                             </p>
                         </div>
