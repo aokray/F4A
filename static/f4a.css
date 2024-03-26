@@ -9,6 +9,7 @@
   --loader-back: #A6A2A2;
   --card-back: #ddd3d3;
   --font-secondary: #fcfcfc;
+  --placeholder-text: #6e6e6e;
 }
 
 [data-theme='dark'] {
@@ -22,6 +23,7 @@
   --loader-back: #A6A2A2;
   --card-back: #353232;
   --font-secondary: #1B1B1B;
+  --placeholder-text: #6e6e6e;
 }
 
 body {
@@ -70,6 +72,18 @@ h1 {
 .resultsHeader {
   margin-bottom: 1rem;
   margin-top: -1rem;
+}
+
+.tabulator-placeholder {
+  background-color: var(--bg-color);
+}
+
+.tabulator-placeholder-contents {
+  /* 
+    Kind of lazy, but without !important, this field seems to be 
+    overwritten by tabulator defaults
+  */
+  color: var(--placeholder-text) !important;
 }
 
 .tabulator-tableHolder {
