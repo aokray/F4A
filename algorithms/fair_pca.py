@@ -2,11 +2,12 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.base import TransformerMixin
 from nptyping import NDArray
+from typing import Tuple
 
 class FairPCAException(Exception):
     pass
 
-def _optProj(M: NDArray, d: int):
+def _optProj(M: NDArray, d: int) -> NDArray:
     p = PCA(d)
     p.fit(M)
     coeffs = p.components_.T
@@ -14,7 +15,7 @@ def _optProj(M: NDArray, d: int):
 
     return P
 
-def _optApprox(M: NDArray, d: int):
+def _optApprox(M: NDArray, d: int) -> NDArray:
     p = PCA(d)
     p.fit(M)
     coeffs = p.components_.T
@@ -22,7 +23,7 @@ def _optApprox(M: NDArray, d: int):
     
     return M @ P
 
-def _oracle(A: NDArray, m_A: int, B: NDArray, m_B: int, alpha: float, beta: float, d: int, w_1: float, w_2: float):
+def _oracle(A: NDArray, m_A: int, B: NDArray, m_B: int, alpha: float, beta: float, d: int, w_1: float, w_2: float) -> Tuple[NDArray, float, float]:
     # Help implementing this from https://github.com/samirasamadi/Fair-PCA/blob/master/mw.m
     ata = A.T @ A
     btb = B.T @ B
@@ -35,7 +36,7 @@ def _oracle(A: NDArray, m_A: int, B: NDArray, m_B: int, alpha: float, beta: floa
 
     return (P_0, z_1, z_2)
 
-def _mw(A, B, d, eta, T):
+def _mw(A: NDArray, B: NDArray, d: int, eta: float, T: float) -> Tuple[NDArray, float, NDArray, float]:
     ata = A.T @ A
     btb = B.T @ B
 
@@ -95,13 +96,13 @@ class FairPCA(TransformerMixin):
         T: number of iterations to run MW algorithm
 
     """
-    def __init__(self, d: int, eta: float = 20, T: int = 5):
+    def __init__(self, d: int, eta: float = 20, T: int = 5) -> None:
         self.d = d
         self.eta = eta
         self.T = T
         self.P_smart = None
 
-    def fit(self, X: NDArray, u_idxs: NDArray, p_idxs: NDArray):
+    def fit(self, X: NDArray, u_idxs: NDArray, p_idxs: NDArray) -> None:
         # The below implementation would throw errors because there is NO guarantee that the sensitive column is passed to this class
         # Now it's requred that u/p_idxs are passed to this class explicitly
         # u_idxs = np.where(X[:,self.sens_idx] == self.u_value)[0]
@@ -129,7 +130,7 @@ class FairPCA(TransformerMixin):
         # Return the project matrix "P_smart" (name from original Matlab code, I just liked it so I'm using it too)
         self.P_smart = P_smart
 
-    def transform(self, X: NDArray):
+    def transform(self, X: NDArray) -> NDArray:
         if self.P_smart is None:
             raise FairPCAException('The fit function must be called before calling the transform function.')
 

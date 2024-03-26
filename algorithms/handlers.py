@@ -10,7 +10,7 @@ class ResultsHandlerException(Exception):
 
 # Data handler accepts data paths and rejects them immediately if the paths don't exist/other problems exist
 class DataHandler:
-    def __init__(self, data_path: str, idxs_path: str, delimiter: str = ","):
+    def __init__(self, data_path: str, idxs_path: str, delimiter: str = ",") -> None:
         self.dataset: NDArray = None
         self.idxs: NDArray = None
         self.delimiter = delimiter
@@ -18,20 +18,20 @@ class DataHandler:
         self.idxs_path = idxs_path
 
     @property
-    def data_path(self):
+    def data_path(self) -> str:
         return self._data_path
 
     @data_path.setter
-    def data_path(self, value: str):
+    def data_path(self, value: str) -> None:
         self._data_path = value
         self.dataset = np.loadtxt(value, delimiter = self.delimiter)
 
     @property
-    def idxs_path(self):
+    def idxs_path(self) -> str:
         return self.idxs_path
 
     @idxs_path.setter
-    def idxs_path(self, value):
+    def idxs_path(self, value: str) -> None:
         self._idxs_path = value
         self.idxs = np.loadtxt(value, delimiter = self.delimiter)
         self.idxs = self.idxs.astype(int)
@@ -57,7 +57,7 @@ class ResultsHandler:
         # Requires a .fit() or .fit_transform() method to "train" the transformer, and a .transform() method to transform new data
         transformer: Type[TransformerMixin] = None,
         needs_idxs: bool = False
-    ):
+    ) -> None:
         self.predictor = predictor
         self.data = data
         self.sens_idx = sens_idx
@@ -67,7 +67,7 @@ class ResultsHandler:
         self.transformer = transformer
         self.needs_idxs = needs_idxs
 
-    def get_results(self):
+    def get_results(self) -> Tuple[float, float, int, list, float, float, float, float]:
         if not hasattr(self.predictor, 'predict'):
             raise ResultsHandlerException(f'The given predictor {self.predictor.__class__.__name__} does not have a predict function.')
 

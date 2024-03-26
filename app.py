@@ -20,16 +20,21 @@ import numpy as np
 from algorithms.algorithm_defaults import alg_defaults
 from algorithms.handlers import ResultsHandler, DataHandler
 from _version import __version__ as app_version
+from typing import Any
 
 app = Flask(__name__)
 
 # Looks for a good secret key in the environment var "f4a_secret_key", defaults to bad secret key
-app.secret_key = os.environ.get('f4a_secret_key', 'NotVerySecretkey')
+app.secret_key = os.environ.get("f4a_secret_key", "NotVerySecretkey")
 
-# TODO: Move some of these into the "index()" function, so once the admin page is set up changes will be picked up on refresh!  
+# TODO: Move some of these into the "index()" function, so once the admin page is set up changes will be picked up on refresh!
 data_names = connect("SELECT dataset_name, dataset_shortname FROM datasets;")
-alg_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Learning Method';")
-trans_names = connect("SELECT algv_algname FROM algv WHERE algv_type = 'Transformer' EXCEPT (SELECT 'None');")
+alg_names = connect(
+    "SELECT algv_algname FROM algv WHERE algv_type = 'Learning Method';"
+)
+trans_names = connect(
+    "SELECT algv_algname FROM algv WHERE algv_type = 'Transformer' EXCEPT (SELECT 'None');"
+)
 webtext = connect("SELECT * FROM webtext;")
 import_strs = connect("SELECT algv_import_str FROM algv WHERE algv_algname != 'None';")
 
@@ -41,40 +46,46 @@ on_startup()
 
 webtext_dict = parse_webtexts(webtext)
 
+
 @app.route("/")
-def index():
-    session['dataShortName'] = None
-    session['algorithm'] = None
-    session['transformer'] = None
-    session['features'] = None
-    session['params'] = {}
+def index() -> None:
+    session["dataShortName"] = None
+    session["algorithm"] = None
+    session["transformer"] = None
+    session["features"] = None
+    session["params"] = {}
 
     return render_template(
-        "index.html", dataset_names=data_names, algorithm_names=alg_names, transformer_names=trans_names, webtext_dict=webtext_dict, version=app_version
+        "index.html",
+        dataset_names=data_names,
+        algorithm_names=alg_names,
+        transformer_names=trans_names,
+        webtext_dict=webtext_dict,
+        version=app_version,
     )
 
 
 @app.route("/admin")
-def admin():
+def admin() -> Any:
     return render_template("admin.html")
 
 
 @app.route("/dataSelect", methods=["POST"])
-def dataSelect():
+def dataSelect() -> str:
     full_ret = {}
     table_ret = []
 
-    session['dataShortName'] = request.args.get("shortdataname")
+    session["dataShortName"] = request.args.get("shortdataname")
 
-    feats_sql = f'''
+    feats_sql = f"""
         SELECT dataset_featnames, dataset_hdist FROM datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
-    '''
+    """
 
-    sens_sql = f'''
+    sens_sql = f"""
         SELECT dataset_sensidx FROM datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
-    '''
+    """
 
     query = connect(feats_sql)[0]
     feats = query[0]
@@ -82,7 +93,7 @@ def dataSelect():
     feat_names = [x.strip() for x in feats.split(",")]
     sens_idx_query = connect(sens_sql)
     sens_idx = int(sens_idx_query[0][0]) - 1
-    full_ret['sens_name'] = feat_names[sens_idx]
+    full_ret["sens_name"] = feat_names[sens_idx]
 
     # still need until admin page
     # all = connect('SELECT * FROM datasets WHERE dataset_name = \'' + dataset +'\'')[0]
@@ -102,84 +113,92 @@ def dataSelect():
                 "feat_id": i,
                 "featname": feat_names[i],
                 "metric": hdists[i],
-                "dist": str(session['dataShortName']) + "/" + str(session['dataShortName']) + str(i),
+                "dist": str(session["dataShortName"])
+                + "/"
+                + str(session["dataShortName"])
+                + str(i),
             }
         )
 
-    full_ret['formData'] = table_ret
+    full_ret["formData"] = table_ret
 
     return json.dumps(full_ret)
 
 
 @app.route("/algSelect", methods=["POST"])
-def algSelect():
-    alg_type = request.args.get('alg_type')
-    alg = request.args.get('alg')
+def algSelect() -> str:
+    alg_type = request.args.get("alg_type")
+    alg = request.args.get("alg")
     info_dict = {}
 
-    if alg_type == 'lm':
-        session['algorithm'] = alg
-    elif alg_type == 'transformer':
-        session['transformer'] = alg
-        if alg == 'None':
-            if alg_type in session['params']:
-                del session['params'][alg_type]
-            return f'{{"{alg}": {{}}}}'   
+    if alg_type == "lm":
+        session["algorithm"] = alg
+    elif alg_type == "transformer":
+        session["transformer"] = alg
+        if alg == "None":
+            if alg_type in session["params"]:
+                del session["params"][alg_type]
+            return f'{{"{alg}": {{}}}}'
 
     else:
-        abort(500, 'Unknown algorithm type passed to the backend, please contact administrator and reload the page.')
+        abort(
+            500,
+            "Unknown algorithm type passed to the backend, please contact administrator and reload the page.",
+        )
 
-    
     isParams = connect(
-        "SELECT algv_params FROM algv WHERE algv_algname = '" + (session['algorithm'] if alg_type == 'lm' else session['transformer']) + "';"
+        "SELECT algv_params FROM algv WHERE algv_algname = '"
+        + (session["algorithm"] if alg_type == "lm" else session["transformer"])
+        + "';"
     )[0][0]
 
     if isParams:
-        params_sql = f'''
+        params_sql = f"""
             SELECT paramsv_param, paramsv_domain, paramsv_desc FROM paramsv
             WHERE paramsv_alg = '{session['algorithm'] if alg_type == 'lm' else session['transformer']}';
-        '''
+        """
         params = connect(params_sql)[0]
 
-        info_dict['param'] = params[0]
-        info_dict['domain'] = params[1]
-        info_dict['desc'] = params[2]
+        info_dict["param"] = params[0]
+        info_dict["domain"] = params[1]
+        info_dict["desc"] = params[2]
 
-        session['params'][alg_type] = {'param': params[0], 'domain': params[1]}
+        session["params"][alg_type] = {"param": params[0], "domain": params[1]}
     else:
-        if alg_type in session['params']:
-            del session['params'][alg_type]
+        if alg_type in session["params"]:
+            del session["params"][alg_type]
 
     return f'{{"{alg}": {json.dumps(info_dict)}}}'
 
+
 # TODO: make this more modular
 @app.route("/runAlg", methods=["POST"])
-def runAlg():
+def runAlg() -> str:
     ret_strs = []
     ret_val = {}
 
     data = request.get_json()
-    lm_hyperparams = data['lm_hyperparams']
-    transformer_hyperparams = data['transformer_hyperparams']
+    lm_hyperparams = data["lm_hyperparams"]
+    transformer_hyperparams = data["transformer_hyperparams"]
 
     features = data["feat_idxs"]
 
-    def_hyperp_query_str = '''
+    def_hyperp_query_str = """
         SELECT paramsv_default FROM paramsv 
         WHERE paramsv_param = '{}';
-    '''
+    """
 
-    #Sloppy? Yes. Easier for a July 15th release? oh yeah.
+    # Sloppy? Yes. Easier for a July 15th release? oh yeah.
     # TODO: Merge this and the above query
-    hyperp_type_str = '''
+    hyperp_type_str = """
         SELECT paramsv_type FROM paramsv
         WHERE paramsv_param = '{}';
-    '''
+    """
 
-    dat_info_query = f'''
+    dat_info_query = f"""
         SELECT dataset_path, dataset_idxspath, dataset_sensidx, dataset_upvals, dataset_name, dataset_sensnames, dataset_labeldesc, dataset_resultsstr from datasets
         WHERE dataset_shortname = '{session['dataShortName']}';
-    '''
+    """
 
     dat_info = connect(dat_info_query)[0]
     dataPath = dat_info[0]
@@ -199,7 +218,7 @@ def runAlg():
     r = len(features)
 
     if features is None or features == []:
-        abort(500, 'You must select at least one feature in the checklist above.')
+        abort(500, "You must select at least one feature in the checklist above.")
     else:
         feats = "{"
         ready = [str(x) + "," for x in features]
@@ -210,56 +229,90 @@ def runAlg():
 
     for key, val in lm_hyperparams.items():
         hyperp_type = connect(hyperp_type_str.format(key))[0][0]
-        if val != '' and not checkTypeHierarchy(str(hyperp_type), getType(lm_hyperparams[key]).__name__):
-            abort(500, 'Expected type ' + hyperp_type + ', instead recieved type ' + getType(lm_hyperparams[key]).__name__ + '. Please enter a value for the learning method hyperparameter with type ' + hyperp_type + '.')
+        if val != "" and not checkTypeHierarchy(
+            str(hyperp_type), getType(lm_hyperparams[key]).__name__
+        ):
+            abort(
+                500,
+                "Expected type "
+                + hyperp_type
+                + ", instead recieved type "
+                + getType(lm_hyperparams[key]).__name__
+                + ". Please enter a value for the learning method hyperparameter with type "
+                + hyperp_type
+                + ".",
+            )
 
-        if val is None or val == '':
+        if val is None or val == "":
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
-            lm_hyperparams[key] = eval(hyperp_type + '(' + def_val + ')')
+            lm_hyperparams[key] = eval(hyperp_type + "(" + def_val + ")")
         else:
             lm_hyperparams[key] = eval(hyperp_type)(lm_hyperparams[key])
 
     for key, val in transformer_hyperparams.items():
         hyperp_type = connect(hyperp_type_str.format(key))[0][0]
-        if val != '' and not checkTypeHierarchy(hyperp_type, getType(transformer_hyperparams[key]).__name__):
-            abort(500, 'Expected type ' + hyperp_type + ', instead recieved type ' + getType(transformer_hyperparams[key]).__name__ + '. Please enter a value for the transformer hyperparameter with type ' + hyperp_type + '.')
+        if val != "" and not checkTypeHierarchy(
+            hyperp_type, getType(transformer_hyperparams[key]).__name__
+        ):
+            abort(
+                500,
+                "Expected type "
+                + hyperp_type
+                + ", instead recieved type "
+                + getType(transformer_hyperparams[key]).__name__
+                + ". Please enter a value for the transformer hyperparameter with type "
+                + hyperp_type
+                + ".",
+            )
 
-        if val is None or val == '':
+        if val is None or val == "":
             def_val = connect(def_hyperp_query_str.format(key))[0][0]
-            transformer_hyperparams[key] = eval(hyperp_type + '(' + def_val + ')')
+            transformer_hyperparams[key] = eval(hyperp_type + "(" + def_val + ")")
         else:
-            transformer_hyperparams[key] = eval(hyperp_type)(transformer_hyperparams[key])
+            transformer_hyperparams[key] = eval(hyperp_type)(
+                transformer_hyperparams[key]
+            )
 
     # Before almost everything, make sure the hyperparamter configuration is acceptable
-    if 'lm' in session['params']:
+    if "lm" in session["params"]:
         try:
-            checkInBounds(session['params']['lm']['domain'], lm_hyperparams[session['params']['lm']['param']], session['algorithm'], {'n': n, 'p': p, 'r': r})
+            checkInBounds(
+                session["params"]["lm"]["domain"],
+                lm_hyperparams[session["params"]["lm"]["param"]],
+                session["algorithm"],
+                {"n": n, "p": p, "r": r},
+            )
         except Exception as e:
             abort(500, e)
-    
-    if 'transformer' in session['params']:
+
+    if "transformer" in session["params"]:
         try:
-            checkInBounds(session['params']['transformer']['domain'], transformer_hyperparams[session['params']['transformer']['param']], session['algorithm'], {'n': n, 'p': p, 'r': r})
+            checkInBounds(
+                session["params"]["transformer"]["domain"],
+                transformer_hyperparams[session["params"]["transformer"]["param"]],
+                session["algorithm"],
+                {"n": n, "p": p, "r": r},
+            )
         except Exception as e:
             abort(500, e)
 
     # TODO: try to clean this up, but something like this is necessary as the project enters multiple hyperparameter territory
-    sel_str = ''
+    sel_str = ""
     counter = 0
     for key, val in lm_hyperparams.items():
         if counter == 0:
-            sel_str += f' and hv.prunhv_name = \'{key}\' and hv.prunhv_value = {val}\n'
+            sel_str += f" and hv.prunhv_name = '{key}' and hv.prunhv_value = {val}\n"
         else:
-            sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})\n'
+            sel_str += f" AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = '{key}' and hv{counter}.prunhv_value = {val})\n"
 
         counter += 1
 
     for key, val in transformer_hyperparams.items():
-        sel_str += f' AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = \'{key}\' and hv{counter}.prunhv_value = {val})\n'
-        
+        sel_str += f" AND EXISTS (SELECT 1 FROM prunhv hv{counter} where hv{counter}.prunhv_id = hv.prunhv_id and hv{counter}.prunhv_name = '{key}' and hv{counter}.prunhv_value = {val})\n"
+
         counter += 1
 
-    cE_str = f'''
+    cE_str = f"""
     select prun_results from prun
     INNER JOIN prunhv hv on prun_id = hv.prunhv_id
     where prun_lm_alg = '{session['algorithm']}'
@@ -267,7 +320,7 @@ def runAlg():
     and prun_dataset = '{dataset}'
     and prun_feats = '{feats}'
     {sel_str};
-    '''
+    """
 
     print(cE_str)
 
@@ -276,11 +329,11 @@ def runAlg():
     # TODO: Modularize this (further?)
     if checkExisting != [] and checkExisting is not None:
         results = checkExisting[0][0]
-        
+
         ret_val["acc"] = round(results["acc"], 3)
         ret_val["sd"] = round(results["sd"], 3)
-        ret_val['eo'] = results['eo']
-        ret_val['rates'] = results['rates']
+        ret_val["eo"] = results["eo"]
+        ret_val["rates"] = results["rates"]
         ret_val["U_up"] = results["U_up"]
         ret_val["U_down"] = results["U_down"]
         ret_val["P_up"] = results["P_up"]
@@ -288,35 +341,48 @@ def runAlg():
 
         print("I FOUND IT, NO RUNNING THE MODEL NECESSARY")
     else:
-        lm_string = session['algorithm'].replace(' ', '')
+        lm_string = session["algorithm"].replace(" ", "")
 
         # Set lm and transformer vars
         if lm_string in alg_defaults:
             lm_hyperparams.update(alg_defaults[lm_string])
 
-        lm = eval(lm_string + '(**lm_hyperparams)')
-        
-        if session['transformer'] is not None and session['transformer'] != 'None':
-            transformer_string = session['transformer'].replace(' ', '')
-            
+        lm = eval(lm_string + "(**lm_hyperparams)")
+
+        if session["transformer"] is not None and session["transformer"] != "None":
+            transformer_string = session["transformer"].replace(" ", "")
+
             if transformer_string in alg_defaults:
                 transformer_hyperparams.update(alg_defaults[transformer_string])
 
-            if transformer_string == 'GeometricFairRepresentation':
+            if transformer_string == "GeometricFairRepresentation":
                 p_idxs = np.where(np.array(features) == (sens_idx - 1))[0]
 
                 if len(p_idxs):
-                    transformer_hyperparams['sens_idxs'] = p_idxs
+                    transformer_hyperparams["sens_idxs"] = p_idxs
                 else:
-                    abort(500, 'To use the transformer "Geometric Fair Representation", you MUST include the sensitive attribute in the features you choose.')
+                    abort(
+                        500,
+                        'To use the transformer "Geometric Fair Representation", you MUST include the sensitive attribute in the features you choose.',
+                    )
 
-            t = eval(transformer_string + '(**transformer_hyperparams)')
+            t = eval(transformer_string + "(**transformer_hyperparams)")
         else:
             transformer_string = None
             t = None
 
         try:
-            results = ResultsHandler(lm, dh, sens_idx-1, (sens_vals[0], sens_vals[1]), features, transformer = t, needs_idxs = True if lm_string == 'LimitedAttributeEffectRegression' else False).get_results()
+            results = ResultsHandler(
+                lm,
+                dh,
+                sens_idx - 1,
+                (sens_vals[0], sens_vals[1]),
+                features,
+                transformer=t,
+                needs_idxs=True
+                if lm_string == "LimitedAttributeEffectRegression"
+                else False,
+            ).get_results()
         except Exception as e:
             # Simply returns a 500 error and spits out the exception the learning method returns - not great
             # TODO: make the error codes MUCH better (DB table maybe?)
@@ -331,14 +397,14 @@ def runAlg():
         ret_val["P_up"] = results[6]
         ret_val["P_down"] = results[7]
 
-        get_id = "SELECT MAX(prun_id) from prun;";
+        get_id = "SELECT MAX(prun_id) from prun;"
         largest_id = connect(get_id)[0][0]
         if largest_id == [] or largest_id is None:
             largest_id = 0
         else:
             largest_id = largest_id + 1
-        
-        ins_sql = f'''
+
+        ins_sql = f"""
             INSERT INTO prun (prun_lm_alg, prun_t_alg, prun_dataset, prun_id, prun_results, prun_feats) VALUES
                 (
                     '{session['algorithm']}',
@@ -349,7 +415,7 @@ def runAlg():
                     '{feats}'
                 );
             COMMIT;
-        '''
+        """
 
         # Both this and the next if statement delete default arguments
         # TODO: clean this up, it's so ugly
@@ -357,40 +423,48 @@ def runAlg():
             for key, val in alg_defaults[lm_string].items():
                 del lm_hyperparams[key]
 
-            if lm_string == 'FairKernelLearning':
-                del lm_hyperparams['sens_idxs']
+            if lm_string == "FairKernelLearning":
+                del lm_hyperparams["sens_idxs"]
 
-        if session['transformer'] is not None:
+        if session["transformer"] is not None:
             if transformer_string in alg_defaults:
                 for key, val in alg_defaults[transformer_string].items():
                     del transformer_hyperparams[key]
 
-            if transformer_string == 'GeometricFairRepresentation':
+            if transformer_string == "GeometricFairRepresentation":
                 # We have to delete this, because it's the sensitive index RELATIVE to the chosen features. Not a good thing to include, and should not be compared against.
-                del transformer_hyperparams['sens_idxs']
+                del transformer_hyperparams["sens_idxs"]
 
-        args_str = ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in lm_hyperparams.items())
+        args_str = ",\n".join(
+            ("({}, '{}', {})".format(largest_id, key, val))
+            for key, val in lm_hyperparams.items()
+        )
 
-        if session['transformer'] is not None and session['transformer'] != 'None':
+        if session["transformer"] is not None and session["transformer"] != "None":
             if len(lm_hyperparams.items()):
-                args_str += ',\n'
-            args_str += ',\n'.join(("({}, '{}', {})".format(largest_id, key, val)) for key, val in transformer_hyperparams.items())
+                args_str += ",\n"
+            args_str += ",\n".join(
+                ("({}, '{}', {})".format(largest_id, key, val))
+                for key, val in transformer_hyperparams.items()
+            )
 
-        ins_sql2 = f'''
+        ins_sql2 = f"""
             INSERT INTO prunhv (prunhv_id, prunhv_name, prunhv_value) VALUES
             {args_str};
             COMMIT;
-        '''
+        """
 
         connect_insert(ins_sql)
-        
+
         if len(args_str):
             connect_insert(ins_sql2)
 
     # Hardcoded in, assuming binary case
-    ret_strs.append(res_str.format(ret_val["P_up"], sens_names[0].lower(), ''))
-    ret_strs.append(res_str.format(ret_val["P_down"], sens_names[0].lower(), 'not '))
-    ret_strs.append(res_str.format(ret_val["U_up"], sens_names[1].lower(), ''))
-    ret_strs.append(res_str.format(ret_val["U_down"], sens_names[1].lower(), 'not '))
+    ret_strs.append(res_str.format(ret_val["P_up"], sens_names[0].lower(), ""))
+    ret_strs.append(res_str.format(ret_val["P_down"], sens_names[0].lower(), "not "))
+    ret_strs.append(res_str.format(ret_val["U_up"], sens_names[1].lower(), ""))
+    ret_strs.append(res_str.format(ret_val["U_down"], sens_names[1].lower(), "not "))
 
-    return json.dumps([ret_strs, ret_val, {'label_str': label_desc}, {'sens_names': sens_names}])
+    return json.dumps(
+        [ret_strs, ret_val, {"label_str": label_desc}, {"sens_names": sens_names}]
+    )
